@@ -1,0 +1,13 @@
+.idea/
+__pycache__
+venv/
+media/
+static/
+uploads/
+geoip-data/
+*.pyc
+*.mo
+.DS_Store
+website/website/.env
+*.backup
+db.sqlite3
