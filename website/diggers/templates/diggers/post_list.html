@@ -1,0 +1,41 @@
+{% extends 'diggers/base.html' %}
+
+{% block title %}Блоґ - {% endblock %}
+
+{% block content %}
+    {% for post in posts %}
+        <article class="entry">
+
+            <header class="entry__header">
+
+                <h2 class="entry__title h1">
+                    <a href="{% url 'diggers:post_detail' post.pk %}" title="">{{ post.title }}</a>
+                </h2>
+
+                <div class="entry__meta">
+                    <ul>
+                        <li>{{ post.created_date }}</li>
+                        <li>
+                            <a href="#" title="" rel="category tag">Ghost</a>
+                        </li>
+                        <li>{{ post.author }}</li>
+                        <li>6 Коментарів</li>
+                    </ul>
+                    <ul>
+                        <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
+                        <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
+                    </ul>
+                </div>
+
+            </header>
+
+            <div class="entry__content">
+                {{ post.text|truncatechars:400|linebreaks }}
+                {% if post.text|length > 400 %}
+                    <a href="{% url 'diggers:post_detail' post.pk %}">Читати далі...</a>
+                {% endif %}
+            </div>
+
+        </article> <!-- end entry -->
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,202 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+
+    <!--- basic page needs
+    ================================================== -->
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}Сайт диґерів Києва</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- mobile specific metas
+    ================================================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS
+    ================================================== -->
+    <link rel="stylesheet" href="{% static "css/base.css" %}">
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+
+    <!-- script
+    ================================================== -->
+    <script src="{% static "js/modernizr.js" %}"></script>
+    <script defer src="{% static "js/fontawesome/all.min.js" %}"></script>
+
+    <!-- favicons
+    ================================================== -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static "apple-touch-icon.png" %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static "favicon-32x32.png" %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon-16x16.png" %}">
+    <link rel="manifest" href="{% static "site.webmanifest" %}">
+
+</head>
+
+<body id="top" {% if post %}class="ss-single"{% endif %}>
+
+    <!-- preloader
+    ================================================== -->
+    <div id="preloader">
+        <div id="loader" class="dots-fade">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Header
+    ================================================== -->
+    <header class="s-header">
+
+        <div class="row">
+
+            <div class="s-header__content column">
+                <h1 class="s-header__logotext">
+                    <a href="{% url 'diggers:post_list' %}" title="">Kiyv spelestology</a>
+                </h1>
+                <p class="s-header__tagline">Сайт диґерів Києва</p>
+            </div>
+
+        </div> <!-- end row -->
+
+       <nav class="s-header__nav-wrap">
+
+           <div class="row">
+
+                <ul class="s-header__nav">
+                    <li class="current"><a href="{% url 'diggers:post_list' %}">Home</a></li>
+                    <li class="has-children"><a href="#0">Dropdown</a>
+                        <ul>
+                            <li><a href="#0">Submenu 01</a></li>
+                            <li><a href="#0">Submenu 02</a></li>
+                            <li><a href="#0">Submenu 03</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="demo.html">Demo</a></li>
+                    <li><a href="archives.html">Archives</a></li>
+                    <li class="has-children"><a href="#0">Blog</a>
+                        <ul>
+                            <li><a href="blog.html">Blog Entries</a></li>
+                            <li><a href="single.html">Single Blog</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="page.html">Page</a></li>
+                </ul> <!-- end #nav -->
+
+           </div>
+
+        </nav> <!-- end #nav-wrap -->
+
+        <a class="header-menu-toggle" href="#0" title="Menu"><span>Menu</span></a>
+
+    </header> <!-- Header End -->
+
+    <!-- Content
+    ================================================== -->
+    <div class="s-content">
+
+        <div class="row">
+
+            <div id="main" class="s-content__main large-8 column">
+
+            {% block content %}
+            {% endblock %}
+
+           </div> <!-- end main -->
+
+
+           <div id="sidebar" class="s-content__sidebar large-4 column">
+
+               <div class="widget widget--search">
+                  <h3 class="h6">Пошук</h3>
+                  <form action="#">
+                     <input type="text" value="Search here..." onblur="if(this.value == '') { this.value = 'Шукати на сайті...'; }" onfocus="if (this.value == 'Шукати на сайті...') { this.value = ''; }" class="text-search">
+                     <input type="submit" value="" class="submit-search">
+                  </form>
+               </div>
+
+               <div class="widget widget--categories">
+                   <h3 class="h6">Категорії.</h3>
+                   <ul>
+                        <li><a href="#0" title="">Wordpress</a> (2)</li>
+                        <li><a href="#0" title="">Ghost</a> (14)</li>
+                        <li><a href="#0" title="">Joomla</a> (5)</li>
+                        <li><a href="#0" title="">Drupal</a> (3)</li>
+                        <li><a href="#0" title="">Magento</a> (2)</li>
+                        <li><a href="#0" title="">Uncategorized</a> (9)</li>
+                    </ul>
+                </div>
+
+                <div class="widget widget_text group">
+                    <h3 class="h6">Widget Text.</h3>
+
+                    <p>
+                    Lorem ipsum Ullamco commodo laboris sit dolore commodo aliquip incididunt fugiat esse dolor
+                    aute fugiat minim eiusmod do velit labore fugiat officia ad sit culpa labore in consectetur
+                    sint cillum sint consectetur voluptate adipisicing Duis irure magna ut sit amet reprehenderit.
+                    </p>
+                </div>
+
+                <div class="widget widget_tags">
+                    <h3 class="h6">Теги.</h3>
+
+                    <div class="tagcloud group">
+                        <a href="#0">Corporate</a>
+                        <a href="#0">Onepage</a>
+                        <a href="#0">Agency</a>
+                        <a href="#0">Multipurpose</a>
+                        <a href="#0">Blog</a>
+                        <a href="#0">Landing Page</a>
+                        <a href="#0">Resume</a>
+                    </div>
+                </div>
+
+                <div class="widget widget_popular">
+                    <h3 class="h6">Популярні пости.</h3>
+
+                    <ul class="link-list">
+                        <li><a href="#">Sint cillum consectetur voluptate.</a></li>
+                        <li><a href="#">Lorem ipsum Ullamco commodo.</a></li>
+                        <li><a href="#">Fugiat minim eiusmod do.</a></li>
+                    </ul>
+                </div>
+
+           </div> <!-- end sidebar -->
+
+       </div> <!-- end row -->
+
+   </div> <!-- end content-wrap -->
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="s-footer">
+
+        <div class="row s-footer__top">
+
+            <div class="ss-copyright">
+                <span>© Kiev Spelestology 2021</span>
+                <span>Design by <a href="https://www.styleshout.com/">StyleShout</a></span>
+            </div>
+
+        </div> <!-- end footer__bottom -->
+
+
+        <div class="ss-go-top">
+            <a class="smoothscroll" title="Вгору" href="#top">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0l8 9h-6v15h-4v-15h-6z"/></svg>
+            </a>
+        </div> <!-- end ss-go-top -->
+
+    </footer> <!-- end Footer-->
+
+
+    <!-- Java Script
+    ================================================== -->
+    <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
+    <script src="{% static "js/main.js" %}"></script>
+
+</body>
+
+</html>

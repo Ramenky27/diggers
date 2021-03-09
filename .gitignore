@@ -2,7 +2,7 @@
 __pycache__
 venv/
 media/
-static/
+/website/static/
 uploads/
 geoip-data/
 *.pyc

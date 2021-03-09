@@ -130,9 +130,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 PROFILE_AVATAR_SIZE = (80, 80)
 
 TAGGIT_CASE_INSENSITIVE = True
 
 AUTH_USER_MODEL = 'diggers.User'
+
+POSTS_PER_PAGE = 25
