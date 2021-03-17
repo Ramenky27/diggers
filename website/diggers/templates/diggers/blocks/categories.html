@@ -1,0 +1,14 @@
+{% load categories %}
+
+<div class="widget widget--categories">
+    <h3 class="h6">Категорії.</h3>
+    <ul>
+        {% categories as list %}
+        {% for category in list %}
+            <li>
+                <a href="{% url 'diggers:list_by_category' category=category.route %}">{{ category }}</a>
+                ({{ category.posts_count }})
+            </li>
+        {% endfor %}
+    </ul>
+</div>

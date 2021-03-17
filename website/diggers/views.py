@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from next_prev import next_in_order, prev_in_order
 
 from .models import Category, User, Post
 
@@ -31,11 +32,24 @@ class PostList(generic.ListView):
 
         q = {k: v for k, v in query.items() if v is not None}
 
-        return Post.objects.filter(Q(**q)).distinct().order_by('-created_date')
+        return Post.objects.filter(Q(**q)).distinct().order_by('-created_date', '-pk')
 
 
 class PostDetail(generic.DetailView):
     model = Post
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PostDetail, self).get_context_data(**kwargs)
+
+        query = {}
+        if not self.request.user.has_perm('diggers.hidden_access'):
+            query['is_hidden'] = False
+
+        qs = Post.objects.all().order_by('created_date', 'pk')
+        current = ctx['post']
+        ctx['next_post'] = next_in_order(current, qs=qs)
+        ctx['prev_post'] = prev_in_order(current, qs=qs)
+        return ctx
 
 
 class PostCreate(LoginRequiredMixin, generic.CreateView):

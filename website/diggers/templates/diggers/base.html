@@ -67,16 +67,25 @@
 
                 <ul class="s-header__nav">
                     <li class="current"><a href="{% url 'diggers:post_list' %}">Блоґ</a></li>
-                    <li><a href="#">Вхід</a></li>
-                    <li><a href="#">Реєстрація</a></li>
                     <li><a href="#">Користувачі</a></li>
+
+                    {% if not user.is_authenticated %}
+                        <li><a href="#">Вхід</a></li>
+                        <li><a href="#">Реєстрація</a></li>
+                    {% else %}
+                        <li><a href="#">Профайл</a></li>
+                        {% if user.is_staff %}
+                            <li><a href="{% url 'admin:index' %}">Адмінка</a></li>
+                        {% endif %}
+                        <li><a href="#?next={{ request.path }}">Вихід</a></li>
+                    {% endif %}
                 </ul> <!-- end #nav -->
 
            </div>
 
         </nav> <!-- end #nav-wrap -->
 
-        <a class="header-menu-toggle" href="#0" title="Menu"><span>Menu</span></a>
+        <a class="header-menu-toggle" href="#0" title="Меню"><span>Меню</span></a>
 
     </header> <!-- Header End -->
 
@@ -104,31 +113,8 @@
                   </form>
                </div>
 
-               <div class="widget widget--categories">
-                   <h3 class="h6">Категорії.</h3>
-                   <ul>
-                        <li><a href="#0" title="">Wordpress</a> (2)</li>
-                        <li><a href="#0" title="">Ghost</a> (14)</li>
-                        <li><a href="#0" title="">Joomla</a> (5)</li>
-                        <li><a href="#0" title="">Drupal</a> (3)</li>
-                        <li><a href="#0" title="">Magento</a> (2)</li>
-                        <li><a href="#0" title="">Uncategorized</a> (9)</li>
-                    </ul>
-                </div>
-
-                <div class="widget widget_tags">
-                    <h3 class="h6">Теги.</h3>
-
-                    <div class="tagcloud group">
-                        <a href="#0">Corporate</a>
-                        <a href="#0">Onepage</a>
-                        <a href="#0">Agency</a>
-                        <a href="#0">Multipurpose</a>
-                        <a href="#0">Blog</a>
-                        <a href="#0">Landing Page</a>
-                        <a href="#0">Resume</a>
-                    </div>
-                </div>
+                {% include "diggers/blocks/categories.html" %}
+                {% include "diggers/blocks/tagcloud.html" %}
 
                 <div class="widget widget_popular">
                     <h3 class="h6">Популярні пости.</h3>

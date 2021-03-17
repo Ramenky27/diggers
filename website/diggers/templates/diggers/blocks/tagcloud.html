@@ -1,0 +1,12 @@
+{% load tags %}
+
+<div class="widget widget_tags">
+    <h3 class="h6">Теги.</h3>
+
+    <div class="tagcloud group">
+        {% tags as cloud %}
+        {% for tag in cloud %}
+            <a href="{% url 'diggers:list_by_tags' tags=tag.name %}" class="tag-size-{{ tag.font_size }}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+</div>

@@ -16,14 +16,22 @@
                     <ul>
                         <li>{{ post.created_date }}</li>
                         <li>
-                            <a href="#" title="" rel="category tag">Ghost</a>
+                            <a href="{% url 'diggers:list_by_category' category=post.category.route %}" title=""
+                               rel="category tag">{{ post.category.name }}</a>
                         </li>
                         <li>{{ post.author }}</li>
                         <li>6 Коментарів</li>
                     </ul>
                     <ul>
-                        <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
-                        <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
+                        {% if user.is_authenticated and post.author == user or perms.diggers.moderate_post %}
+                            {% if perms.diggers.change_post %}
+                                <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
+                            {% endif %}
+
+                            {% if perms.diggers.delete_cmspost %}
+                                <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
+                            {% endif %}
+                        {% endif %}
                     </ul>
                 </div>
 
