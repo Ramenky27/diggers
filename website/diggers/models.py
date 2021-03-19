@@ -24,22 +24,25 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         if self.avatar:
-            img = Image.open(self.avatar)
-            max_width, max_height = settings.PROFILE_AVATAR_SIZE
+            try:
+                img = Image.open(self.avatar)
+                max_width, max_height = settings.PROFILE_AVATAR_SIZE
 
-            if img.width > max_width or img.height > max_height:
-                output_size = settings.PROFILE_AVATAR_SIZE
-                img.thumbnail(output_size)
-                img = img.convert('RGB')
+                if img.width > max_width or img.height > max_height:
+                    output_size = settings.PROFILE_AVATAR_SIZE
+                    img.thumbnail(output_size)
+                    img = img.convert('RGB')
 
-                output = BytesIO()
-                img.save(output, format='JPEG')
-                output.seek(0)
+                    output = BytesIO()
+                    img.save(output, format='JPEG')
+                    output.seek(0)
 
-                self.avatar = InMemoryUploadedFile(output, 'ImageField',
-                                                   f'{self.avatar.name.split(".")[0]}.jpg',
-                                                   'image/jpeg', sys.getsizeof(output),
-                                                   None)
+                    self.avatar = InMemoryUploadedFile(output, 'ImageField',
+                                                       f'{self.avatar.name.split(".")[0]}.jpg',
+                                                       'image/jpeg', sys.getsizeof(output),
+                                                       None)
+            except FileNotFoundError:
+                self.avatar = None
 
         super().save(*args, **kwargs)
 
