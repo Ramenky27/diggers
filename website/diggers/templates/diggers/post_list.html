@@ -43,7 +43,37 @@
                     <a href="{% url 'diggers:post_detail' post.pk %}">Читати далі...</a>
                 {% endif %}
             </div>
-
         </article> <!-- end entry -->
     {% endfor %}
+
+    {% if posts.has_other_pages %}
+        <!-- page nav -->
+        <div class="post-list-nav">
+            <nav class="pgn">
+                <ul>
+                    {% if posts.has_previous %}
+                        <li>
+                            <a rel="prev" class="pgn__prev" href="?page={{ posts.previous_page_number }}">Попередня</a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in posts.paginator.page_range %}
+                        <li>
+                            {% if posts.number == i %}
+                                <span class="pgn__num current">{{ i }}</span>
+                            {% else %}
+                                <a rel="page{{ i }}" class="pgn__num" href="?page={{ i }}">{{ i }}</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+
+                    {% if posts.has_next %}
+                        <li>
+                            <a rel="next" class="pgn__next" href="?page={{ posts.next_page_number }}">Наступна</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
 {% endblock %}
