@@ -42,7 +42,19 @@ class PostForm(forms.ModelForm):
 class ExtendedRegistrationForm(RegistrationForm):
     class Meta(RegistrationForm.Meta):
         model = User
+        fields = [
+            User.USERNAME_FIELD,
+            User.get_email_field_name(),
+            "password1",
+            "password2",
+            "avatar"
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        print(cleaned_data.get('avatar'))
+        return cleaned_data
 
 
 class ExtendedLoginForm(AuthenticationForm):
-    remember_me = forms.BooleanField()
+    remember_me = forms.BooleanField(required=False)

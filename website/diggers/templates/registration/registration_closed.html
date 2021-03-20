@@ -1,0 +1,13 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Реєстрація{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Реєстрацію відключено</h2>
+
+        <p>Для отримання аккаунту на сайті зверніться на <a href="mailto:admin@diggers.kiev.ua">e-mail</a></p>
+        <p><a href="{% url 'password_reset' %}">Забули пароль?</a></p>
+        <p><a href="{% url 'diggers:post_list' %}">На головну</a></p>
+    </section>
+{% endblock %}

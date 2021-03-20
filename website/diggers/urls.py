@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from django_registration.backends.activation.views import RegistrationView
 
 from . import views
@@ -18,9 +18,7 @@ urlpatterns = [
          RegistrationView.as_view(
              form_class=ExtendedRegistrationForm
          ),
-         name='django_registration_register',
+         name='registration',
          ),
     path('accounts/login/', views.ExtendedLoginView.as_view(), name='login'),
-    path('accounts/', include('django_registration.backends.activation.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
 ]

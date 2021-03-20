@@ -144,3 +144,10 @@ POSTS_PER_PAGE = 25
 ACCOUNT_ACTIVATION_DAYS = 7
 REGISTRATION_OPEN = True
 REGISTRATION_SALT = os.getenv('REGISTRATION_SALT', '')
+
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = os.getenv('EMAIL_PORT', 25)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', False) == 'True'
+DEFAULT_FROM_EMAIL = 'noreply@diggers.kiev.ua'
