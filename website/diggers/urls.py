@@ -20,6 +20,7 @@ urlpatterns = [
          ),
          name='django_registration_register',
          ),
+    path('accounts/login/', views.ExtendedLoginView.as_view(), name='login'),
     path('accounts/', include('django_registration.backends.activation.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

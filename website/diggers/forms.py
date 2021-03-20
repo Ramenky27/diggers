@@ -1,6 +1,7 @@
 import re
 from django import forms
 from django_registration.forms import RegistrationForm
+from django.contrib.auth.forms import AuthenticationForm
 
 from .models import Post, User
 
@@ -41,3 +42,7 @@ class PostForm(forms.ModelForm):
 class ExtendedRegistrationForm(RegistrationForm):
     class Meta(RegistrationForm.Meta):
         model = User
+
+
+class ExtendedLoginForm(AuthenticationForm):
+    remember_me = forms.BooleanField()

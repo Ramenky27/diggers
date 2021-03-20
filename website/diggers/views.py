@@ -4,10 +4,12 @@ from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
 from next_prev import next_in_order, prev_in_order
 
 from .models import Category, User, Post
-from .forms import PostForm
+from .forms import PostForm, ExtendedLoginForm
+
 
 # Create your views here.
 
@@ -77,3 +79,14 @@ class PostDelete(LoginRequiredMixin, generic.DeleteView):
     model = Post
     template_name_suffix = '_confirm_delete'
     success_url = reverse_lazy('diggers:post_list')
+
+
+class ExtendedLoginView(LoginView):
+    form_class = ExtendedLoginForm
+
+    def form_valid(self, form):
+        remember_me = form.cleaned_data['remember_me']
+        if not remember_me:
+            self.request.session.set_expiry(0)
+            self.request.session.modified = True
+        return super(ExtendedLoginView, self).form_valid(form)
