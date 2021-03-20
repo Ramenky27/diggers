@@ -26,7 +26,9 @@
     {% for field in form.visible_fields %}
         <div{% if forloop.last %} class="h-add-bottom"{% endif %}>
             {% if field|widget_type == 'select' %}
-                {{ field.label_tag }}
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}{% if field.field.required %}*{% endif %}
+                </label>
                 <div class="ss-custom-select">
                     {% render_field field|add_class:"h-full-width" %}
                 </div>
@@ -34,14 +36,24 @@
                 <div>
                     <label for="{{ field.id_for_label }}">
                         {{ field }}
-                        <span class="label-text">{{ field.label }}</span>
+                        <span class="label-text">{{ field.label }}{% if field.field.required %}*{% endif %}</span>
                     </label>
                 </div>
             {% else %}
-                {{ field.label_tag }}
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}{% if field.field.required %} *{% endif %}
+                </label>
                 {% render_field field|add_class:"h-full-width" %}
             {% endif %}
-            {{ field.errors }}
+            {% if field.errors %}
+                <ul class="errorlist">
+                    {% for error in field.errors %}
+                        <li>
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

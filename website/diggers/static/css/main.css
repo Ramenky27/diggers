@@ -840,6 +840,15 @@ label>input[type="radio"] {
     top: .2rem;
 }
 
+ul.errorlist li {
+    font-family: "Open Sans", sans-serif;
+    color: red;
+    font-size: 1.264rem;
+    font-weight: 500;
+    line-height: 1.582;
+    line-height: inherit;
+}
+
 /* ------------------------------------------------------------------- 
  * ## style placeholder text
  * ------------------------------------------------------------------- */
