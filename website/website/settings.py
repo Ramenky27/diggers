@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'mptt',
     'diggers',
     'django_cleanup.apps.CleanupConfig',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

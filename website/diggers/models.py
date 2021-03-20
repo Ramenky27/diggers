@@ -20,7 +20,7 @@ class User(AbstractUser):
     is_banned = models.BooleanField(default=False, verbose_name='Заблоковано')
 
     def get_absolute_url(self):
-        return reverse('user', kwargs={'username': self.username})
+        return reverse('diggers:user', kwargs={'username': self.username})
 
     def save(self, *args, **kwargs):
         if self.avatar:
@@ -52,7 +52,7 @@ class Category(models.Model):
     route = models.CharField(max_length=20, verbose_name='Шлях')
 
     def get_absolute_url(self):
-        return '/category/%s/' % self.route
+        return reverse('diggers:list_by_category', kwargs={'category': self.route})
 
     def __str__(self):
         return self.name
@@ -78,11 +78,8 @@ class Post(models.Model):
     modified_date = models.DateTimeField(auto_now=True, verbose_name='Дата редагування')
     is_hidden = models.BooleanField(default=False, verbose_name='Зробити прихованим')
 
-    def _tags(self):
-        return [t.name for t in self.tags.all()]
-
     def get_absolute_url(self):
-        return reverse('post_detail', kwargs={'pk': self.pk})
+        return reverse('diggers:post_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.title
@@ -140,7 +137,7 @@ class Map(models.Model):
         return [t.name for t in self.tags.all()]
 
     def get_absolute_url(self):
-        return reverse('map', kwargs={'pk': self.pk})
+        return reverse('diggers:map', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.title

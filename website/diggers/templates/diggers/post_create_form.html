@@ -1,0 +1,16 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% load static %}
+
+{% block title %}Створення поста{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Створення поста</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% include "diggers/blocks/form.html" %}
+            <button type="submit" class="btn--primary h-full-width">Зберегти</button>
+        </form>
+    </section>
+{% endblock %}

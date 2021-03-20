@@ -1,0 +1,32 @@
+{% load widget_tweaks %}
+
+{% csrf_token %}
+{{ form.media }}
+{{ form.non_field_errors }}
+<div>
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+
+    {% for field in form.visible_fields %}
+        <div{% if forloop.last %} class="h-add-bottom"{% endif %}>
+            {{ field.errors }}
+            {% if field|widget_type == 'select' %}
+                {{ field.label_tag }}
+                <div class="ss-custom-select">
+                    {% render_field field|add_class:"h-full-width" %}
+                </div>
+            {% elif field|widget_type == 'checkboxinput' %}
+                <div>
+                    <label for="{{ field.id_for_label }}">
+                        {{ field }}
+                        <span class="label-text">{{ field.label }}</span>
+                    </label>
+                </div>
+            {% else %}
+                {{ field.label_tag }}
+                {% render_field field|add_class:"h-full-width" %}
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

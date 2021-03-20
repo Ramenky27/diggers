@@ -1,4 +1,4 @@
-{% extends 'diggers/base.html' %}
+{% extends 'diggers/layouts/blog.html' %}
 
 {% load static %}
 
@@ -52,8 +52,6 @@
                 {% endfor %}
             </p>
         {% endif %}
-
-        {{ next_post }}
 
         {% if next_post or prev_post %}
             <ul class="entry__post-nav h-group">

@@ -67,6 +67,12 @@
 
                 <ul class="s-header__nav">
                     <li class="current"><a href="{% url 'diggers:post_list' %}">Блоґ</a></li>
+                    <li class="has-children">
+                        <a href="#0">Створити</a>
+                        <ul>
+                            <li><a href="{% url 'diggers:post_create' %}">Пост</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#">Користувачі</a></li>
 
                     {% if not user.is_authenticated %}
@@ -93,42 +99,7 @@
     ================================================== -->
     <div class="s-content">
 
-        <div class="row">
-
-            <div id="main" class="s-content__main large-8 column">
-
-            {% block content %}
-            {% endblock %}
-
-           </div> <!-- end main -->
-
-
-           <div id="sidebar" class="s-content__sidebar large-4 column">
-
-               <div class="widget widget--search">
-                  <h3 class="h6">Пошук</h3>
-                  <form action="#">
-                     <input type="text" value="Search here..." onblur="if(this.value == '') { this.value = 'Шукати на сайті...'; }" onfocus="if (this.value == 'Шукати на сайті...') { this.value = ''; }" class="text-search">
-                     <input type="submit" value="" class="submit-search">
-                  </form>
-               </div>
-
-                {% include "diggers/blocks/categories.html" %}
-                {% include "diggers/blocks/tagcloud.html" %}
-
-                <div class="widget widget_popular">
-                    <h3 class="h6">Популярні пости.</h3>
-
-                    <ul class="link-list">
-                        <li><a href="#">Sint cillum consectetur voluptate.</a></li>
-                        <li><a href="#">Lorem ipsum Ullamco commodo.</a></li>
-                        <li><a href="#">Fugiat minim eiusmod do.</a></li>
-                    </ul>
-                </div>
-
-           </div> <!-- end sidebar -->
-
-       </div> <!-- end row -->
+    {% block layout %}{% endblock %}
 
    </div> <!-- end content-wrap -->
 

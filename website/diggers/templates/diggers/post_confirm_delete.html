@@ -1,19 +1,23 @@
-{% extends 'diggers/base.html' %}
+{% extends 'diggers/layouts/page.html' %}
 
 {% block title %}Видалення поста - {% endblock %}
 
 {% block content %}
     <section class="page-content">
 
-        <h2 class="page-content__title h1">Видалення поста</h2>
+        <h2 class="page-content__title h1">Видалення поста {{ post }}</h2>
 
-        <p class="lead">
-            Ви підтверджуєте видалення поста?
-        </p>
-        <p>
-            <a class="btn btn--primary" href="#">Видалити</a>
-            <a class="btn btn--stroke" href="#">Скасувати</a>
-        </p>
+        <form method="POST">
+            {% csrf_token %}
 
+            <p class="lead">
+                Ви підтверджуєте видалення поста?
+            </p>
+
+            <p>
+                <input type="submit" class="btn btn--primary" value="Видалити">
+                <a class="btn btn--stroke" href="{{ view.get_success_url }}">Скасувати</a>
+            </p>
+        </form>
     </section> <!-- end page -->
 {% endblock %}

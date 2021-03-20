@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from next_prev import next_in_order, prev_in_order
 
 from .models import Category, User, Post
+from .forms import PostForm
 
 # Create your views here.
 
@@ -54,16 +55,25 @@ class PostDetail(generic.DetailView):
 
 class PostCreate(LoginRequiredMixin, generic.CreateView):
     model = Post
-    fields = ['title', 'text', 'category', 'tags', 'is_hidden']
+    form_class = PostForm
+    template_name_suffix = '_create_form'
+
+    def get_initial(self):
+        self.initial.update({'author': self.request.user})
+        return self.initial
 
 
 class PostUpdate(LoginRequiredMixin, generic.UpdateView):
     model = Post
-    fields = ['title', 'text', 'category', 'tags', 'is_hidden']
+    form_class = PostForm
     template_name_suffix = '_update_form'
+
+    def get_initial(self):
+        self.initial.update({'author': self.request.user})
+        return self.initial
 
 
 class PostDelete(LoginRequiredMixin, generic.DeleteView):
     model = Post
-    fields = ['title', 'text', 'category', 'tags', 'is_hidden']
-    template_name_suffix = reverse_lazy('index')
+    template_name_suffix = '_confirm_delete'
+    success_url = reverse_lazy('diggers:post_list')
