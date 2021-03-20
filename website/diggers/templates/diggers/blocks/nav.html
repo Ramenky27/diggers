@@ -1,6 +1,10 @@
 {% url 'diggers:post_list' as post_list_url %}
 {% url 'diggers:post_create' as post_create_url %}
 
+{% url 'diggers:django_registration_register' as registration_url %}
+{% url 'diggers:logout' as logout_url %}
+{% url 'diggers:login' as login_url %}
+
 <ul class="s-header__nav">
     <li {% if request.path == post_list_url %}class="current"{% endif %}><a href="{{ post_list_url }}">Блоґ</a></li>
     <li class="has-children {% if request.path == post_create_url %}current{% endif %}">
@@ -12,13 +16,13 @@
     <li><a href="#">Користувачі</a></li>
 
     {% if not user.is_authenticated %}
-        <li><a href="#">Вхід</a></li>
-        <li><a href="#">Реєстрація</a></li>
+        <li {% if request.path == login_url %}class="current"{% endif %}><a href="{{ login_url }}">Вхід</a></li>
+        <li {% if request.path == registration_url %}class="current"{% endif %}><a href="{{ registration_url }}">Реєстрація</a></li>
     {% else %}
         <li><a href="#">Профайл</a></li>
         {% if user.is_staff %}
             <li><a href="{% url 'admin:index' %}">Адмінка</a></li>
         {% endif %}
-        <li><a href="#?next={{ request.path }}">Вихід</a></li>
+        <li><a href="{{ logout_url }}?next={{ request.path }}">Вихід</a></li>
     {% endif %}
 </ul> <!-- end #nav -->

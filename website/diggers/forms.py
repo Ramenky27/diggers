@@ -1,6 +1,8 @@
 import re
 from django import forms
-from .models import Post
+from django_registration.forms import RegistrationForm
+
+from .models import Post, User
 
 
 class PostForm(forms.ModelForm):
@@ -34,3 +36,8 @@ class PostForm(forms.ModelForm):
         cleaned_data['tags'] = tags
 
         return cleaned_data
+
+
+class ExtendedRegistrationForm(RegistrationForm):
+    class Meta(RegistrationForm.Meta):
+        model = User

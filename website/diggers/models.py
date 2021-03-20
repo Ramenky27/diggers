@@ -14,7 +14,7 @@ from io import BytesIO
 class User(AbstractUser):
     avatar = models.ImageField(upload_to='uploads/avatars/', blank=True, null=True, verbose_name='Аватар')
     last_activity = models.DateTimeField(null=True, blank=True, verbose_name='Був на сайті')
-    email_change_token = models.CharField(max_length=80, verbose_name='Код підтвердження зміни e-mail')
+    email_change_token = models.CharField(max_length=80, null=True, blank=True, verbose_name='Код підтвердження зміни e-mail')
     new_email = models.CharField(max_length=40, null=True, blank=True, verbose_name='Новий e-mail')
     email_verified = models.BooleanField(default=False, verbose_name='e-mail підтверджено')
     is_banned = models.BooleanField(default=False, verbose_name='Заблоковано')
