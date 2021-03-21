@@ -1,5 +1,6 @@
 from django.urls import path
 from django.views.generic.base import TemplateView
+from django.contrib.auth.views import PasswordResetView
 
 from . import views
 from .forms import ExtendedRegistrationForm
@@ -33,4 +34,12 @@ urlpatterns = [
          name='registration',
          ),
     path('accounts/login/', views.ExtendedLoginView.as_view(), name='login'),
+    path(
+        'accounts/password_reset/',
+        PasswordResetView.as_view(
+            html_email_template_name='registration/password_reset_email.html',
+            email_template_name='registration/password_reset_email.txt'
+        ),
+        name='password_reset'
+    ),
 ]
