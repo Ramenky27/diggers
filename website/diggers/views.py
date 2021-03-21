@@ -44,10 +44,19 @@ class PostList(generic.ListView):
 class PostListByAuthor(SingleObjectMixin, generic.ListView):
     paginate_by = settings.POSTS_PER_PAGE
     slug_field = 'username'
+    slug_url_kwarg = 'username'
     query_pk_and_slug = True
 
     def __init__(self):
         self.object = None
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs.get(self.slug_url_kwarg)
+
+        if slug is None:
+            self.kwargs[self.slug_url_kwarg] = self.request.user.username
+
+        return super().get_object(queryset=queryset)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=User.objects.all())

@@ -22,7 +22,7 @@
         <li {% if request.path == registration_url %}class="current"{% endif %}><a href="{{ registration_url }}">Реєстрація</a>
         </li>
     {% else %}
-        <li><a href="#">Профайл</a></li>
+        <li><a href="{% url 'diggers:profile' %}">Профайл</a></li>
         {% if user.is_staff %}
             <li><a href="{% url 'admin:index' %}">Адмінка</a></li>
         {% endif %}

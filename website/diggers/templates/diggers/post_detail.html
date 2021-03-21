@@ -18,10 +18,7 @@
                         <a href="{% url 'diggers:list_by_category' category=post.category.route %}" title=""
                            rel="category tag">{{ post.category.name }}</a>
                     </li>
-                    <li>{{ post.author }}</li>
-                </ul>
-
-                <ul>
+                    <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
                     {% if user.is_authenticated and post.author == user or perms.diggers.moderate_post %}
                         {% if perms.diggers.change_post %}
                             <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
@@ -32,6 +29,7 @@
                         {% endif %}
                     {% endif %}
                 </ul>
+
             </div>
 
         </header> <!-- entry__header -->
@@ -54,11 +52,13 @@
         {% if next_post or prev_post %}
             <ul class="entry__post-nav h-group">
                 {% if prev_post %}
-                    <li class="prev"><a rel="prev" href="{% url "diggers:post_detail" prev_post.pk %}"><strong class="h6">Попередній пост</strong>
+                    <li class="prev"><a rel="prev" href="{% url "diggers:post_detail" prev_post.pk %}"><strong
+                            class="h6">Попередній пост</strong>
                         {{ prev_post.title }}</a></li>
                 {% endif %}
                 {% if next_post %}
-                    <li class="next"><a rel="next" href="{% url "diggers:post_detail" next_post.pk %}"><strong class="h6">Наступний пост</strong>
+                    <li class="next"><a rel="next" href="{% url "diggers:post_detail" next_post.pk %}"><strong
+                            class="h6">Наступний пост</strong>
                         {{ next_post.title }}</a></li>
                 {% endif %}
             </ul>

@@ -56,11 +56,9 @@
                             <a href="{% url 'diggers:list_by_category' category=post.category.route %}" title=""
                                rel="category tag">{{ post.category.name }}</a>
                         </li>
-                        <li>{{ post.author }}</li>
+                        <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
                         <li>6 Коментарів</li>
-                    </ul>
-                    <ul>
-                        {% if user.is_authenticated and post.author == user or perms.diggers.moderate_post %}
+                                             {% if user.is_authenticated and post.author == user or perms.diggers.moderate_post %}
                             {% if perms.diggers.change_post %}
                                 <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
                             {% endif %}
