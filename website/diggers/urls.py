@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.PostList.as_view(), name='post_list'),
     path('category/<str:category>/', views.PostList.as_view(), name='list_by_category'),
     path('tags/<str:tags>/', views.PostList.as_view(), name='list_by_tags'),
+    path('author/<str:slug>/', views.PostListByAuthor.as_view(), name='list_by_author'),
     path('posts/<int:pk>/', views.PostDetail.as_view(), name='post_detail'),
     path('posts/new', views.PostCreate.as_view(), name='post_create'),
     path('posts/<int:pk>/edit', views.PostUpdate.as_view(), name='post_update'),

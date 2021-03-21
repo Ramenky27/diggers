@@ -18,6 +18,8 @@ class User(AbstractUser):
     new_email = models.CharField(max_length=40, null=True, blank=True, verbose_name='Новий e-mail')
     email_verified = models.BooleanField(default=False, verbose_name='e-mail підтверджено')
     is_banned = models.BooleanField(default=False, verbose_name='Заблоковано')
+    birth_date = models.DateField(null=True, blank=True, verbose_name='Дата народження')
+    location = models.CharField(max_length=80, null=True, blank=True, verbose_name='Місцезнаходження')
 
     def get_absolute_url(self):
         return reverse('diggers:user', kwargs={'username': self.username})

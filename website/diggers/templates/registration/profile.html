@@ -1,0 +1,21 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Профіль користувача {{ user.username }}{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Профіль користувача {{ user.username }}</h2>
+
+        <div class="row">
+            <div class="column large-3">
+                <img src="{{ user.avatar }}" alt="avatar"/>
+                <p>{{ user.first_name }} {{ user.last_name }}</p>
+                <p>Дата народження: {{ user.birth_date }}</p>
+                <p>Місцезнаходження: {{ user.location }}</p>
+                <p>Реєстрація: {{ user.date_joined }}</p>
+                <p>Був на сайті: {{ user.last_activity }}</p>
+                <a href="{% url 'diggers:list_by_user' user.username %}">Пости користувача</a>
+            </div>
+        </div>
+    </section>
+{% endblock %}

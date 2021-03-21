@@ -1,4 +1,5 @@
 from django.views import generic
+from django.views.generic.detail import SingleObjectMixin
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.conf import settings
@@ -32,15 +33,36 @@ class PostList(generic.ListView):
         if 'tags' in self.kwargs:
             query['tags__name__in'] = self.kwargs['tags'].split(",")
 
-        if 'author' in self.kwargs:
-            query['author__pk'] = get_object_or_404(User, username=self.kwargs['author'])
-
         if not self.request.user.has_perm('diggers.hidden_access'):
             query['is_hidden'] = False
 
         q = {k: v for k, v in query.items() if v is not None}
 
         return Post.objects.filter(Q(**q)).distinct().order_by('-created_date', '-pk')
+
+
+class PostListByAuthor(SingleObjectMixin, generic.ListView):
+    paginate_by = settings.POSTS_PER_PAGE
+    slug_field = 'username'
+    query_pk_and_slug = True
+
+    def __init__(self):
+        self.object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=User.objects.all())
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['author'] = self.object
+        ctx['posts'] = self.object_list
+        return ctx
+
+    def get_queryset(self):
+        not_hidden = not self.request.user.has_perm('diggers.hidden_access')
+        author = self.object.pk
+        return Post.objects.filter(author__pk=author, is_hidden=not_hidden).distinct().order_by('-created_date', '-pk')
 
 
 class PostDetail(generic.DetailView):

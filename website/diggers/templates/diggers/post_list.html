@@ -1,8 +1,45 @@
 {% extends 'diggers/layouts/blog.html' %}
+{% load static %}
 
 {% block title %}Блоґ{% endblock %}
 
 {% block content %}
+    {% if author %}
+        <section>
+            <h2 class="page-content__title h2">Пости користувача {{ author.username }}</h2>
+
+            <div class="row">
+                <div class="column large-3 lining">
+                    {% if author.avatar %}
+                        <img src="{{ author.avatar }}" alt="avatar"/>
+                    {% else %}
+                        <img src="{% static "images/thumb.jpg" %}" alt="avatar"/>
+                    {% endif %}
+                </div>
+                <div class="column large-9 lining">
+                    <dl>
+                        <dt>Ім'я</dt>
+                        <dd>
+                            {% if author.first_name or author.last_namme %}
+                                {{ author.first_name }} {{ author.last_name }}
+                            {% else %}
+                                Не вказано
+                            {% endif %}
+                        </dd>
+                        <dt> День народження:</dt>
+                        <dd>{% if author.birth_date %}{{ author.birth_date }}{% else %}Не вказано{% endif %}</dd>
+                        <dt>Місцезнаходження:</dt>
+                        <dd>{% if author.location %}{{ author.location }}{% else %}Не вказано{% endif %}</dd>
+                        <dt>Реєстрація:</dt>
+                        <dd>{{ author.date_joined }}</dd>
+                        <dt>Був на сайті:</dt>
+                        <dd>{% if author.last_activity %}{{ author.last_activity }}{% else %}Ніколи{% endif %}</dd>
+                    </dl>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
     {% for post in posts %}
         <article class="entry">
 
