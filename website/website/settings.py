@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'diggers',
     'django_cleanup.apps.CleanupConfig',
     'widget_tweaks',
+    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,5 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', False) == 'True'
 DEFAULT_FROM_EMAIL = 'noreply@diggers.kiev.ua'
+
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.word_challenge'

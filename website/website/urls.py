@@ -21,4 +21,5 @@ urlpatterns = [
     path('', include('diggers.urls')),
     path('accounts/', include('django_registration.backends.one_step.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('captcha/', include('captcha.urls')),
 ]

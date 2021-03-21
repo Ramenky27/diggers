@@ -2,6 +2,7 @@ import re
 from django import forms
 from django_registration.forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
+from captcha.fields import CaptchaField
 
 from .models import Post, User
 
@@ -40,6 +41,8 @@ class PostForm(forms.ModelForm):
 
 
 class ExtendedRegistrationForm(RegistrationForm):
+    captcha = CaptchaField()
+
     class Meta(RegistrationForm.Meta):
         model = User
         fields = [
@@ -47,7 +50,8 @@ class ExtendedRegistrationForm(RegistrationForm):
             User.get_email_field_name(),
             "password1",
             "password2",
-            "avatar"
+            "avatar",
+            "captcha"
         ]
 
 
