@@ -1,5 +1,5 @@
 from django.urls import path
-from django_registration.backends.activation.views import RegistrationView
+from django.views.generic.base import TemplateView
 
 from . import views
 from .forms import ExtendedRegistrationForm
@@ -14,8 +14,20 @@ urlpatterns = [
     path('posts/<int:pk>/edit', views.PostUpdate.as_view(), name='post_update'),
     path('posts/<int:pk>/delete', views.PostDelete.as_view(), name='post_delete'),
 
+    path(
+        'accounts/activate/complete/',
+        TemplateView.as_view(
+            template_name='registration/activation_complete.html'
+        ),
+        name='registration_activation_complete',
+    ),
+    path(
+        'accounts/activate/<str:activation_key>/',
+        views.EmailActivationView.as_view(),
+        name='registration_activate',
+    ),
     path('accounts/register/',
-         RegistrationView.as_view(
+         views.ExtendedRegistrationView.as_view(
              form_class=ExtendedRegistrationForm
          ),
          name='registration',

@@ -7,17 +7,20 @@
 
 <ul class="s-header__nav">
     <li {% if request.path == post_list_url %}class="current"{% endif %}><a href="{{ post_list_url }}">Блоґ</a></li>
-    <li class="has-children {% if request.path == post_create_url %}current{% endif %}">
-        <a href="#">Створити</a>
-        <ul>
-            <li><a href="{{ post_create_url }}">Пост</a></li>
-        </ul>
-    </li>
+    {% if user.is_authenticated and user.email_verified %}
+        <li class="has-children {% if request.path == post_create_url %}current{% endif %}">
+            <a href="#">Створити</a>
+            <ul>
+                <li><a href="{{ post_create_url }}">Пост</a></li>
+            </ul>
+        </li>
+    {% endif %}
     <li><a href="#">Користувачі</a></li>
 
     {% if not user.is_authenticated %}
         <li {% if request.path == login_url %}class="current"{% endif %}><a href="{{ login_url }}">Вхід</a></li>
-        <li {% if request.path == registration_url %}class="current"{% endif %}><a href="{{ registration_url }}">Реєстрація</a></li>
+        <li {% if request.path == registration_url %}class="current"{% endif %}><a href="{{ registration_url }}">Реєстрація</a>
+        </li>
     {% else %}
         <li><a href="#">Профайл</a></li>
         {% if user.is_staff %}

@@ -1,0 +1,11 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Активація{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Активацію не виконано</h2>
+        <p>{{ activation_error.message }}</p>
+        <p><a href="{% url 'diggers:post_list' %}">На головну</a></p>
+    </section>
+{% endblock %}
