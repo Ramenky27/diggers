@@ -50,11 +50,6 @@ class ExtendedRegistrationForm(RegistrationForm):
             "avatar"
         ]
 
-    def clean(self):
-        cleaned_data = super().clean()
-        print(cleaned_data.get('avatar'))
-        return cleaned_data
-
 
 class ExtendedLoginForm(AuthenticationForm):
     remember_me = forms.BooleanField(required=False)

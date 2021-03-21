@@ -1,7 +1,7 @@
-Ви зареєструвалися на сайті {{site_name}} як {{user}}.
+Ви зареєструвалися на сайті {{ site.domain }} як {{ user }}.
 Для підтвердження e-mail перейдіть будь ласка за посиланням нижче.
 
-{{ domain }}{% url 'diggers:registration_activate' activation_key %}
+{{ site.domain }}{% url 'diggers:registration_activate' activation_key %}
 
-Посилання будет актуальне {{expiration_days}} днів.
+Посилання будет актуальне {{ expiration_days }} днів.
 Якщо ви не реєструвались на сайті - просто проігноруйте цей лист.

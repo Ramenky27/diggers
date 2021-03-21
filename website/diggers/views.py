@@ -10,6 +10,7 @@ from django.contrib.auth.views import LoginView
 from django_registration.backends.activation.views import ActivationView, RegistrationView as ActivationEmailMixin
 from django_registration.backends.one_step.views import RegistrationView as OneStepRegistrationView
 from django_registration.exceptions import ActivationError
+from django.template.loader import render_to_string
 
 from .models import Category, User, Post
 from .forms import PostForm, ExtendedLoginForm
@@ -100,10 +101,35 @@ class ExtendedLoginView(LoginView):
 
 
 class ExtendedRegistrationView(OneStepRegistrationView, ActivationEmailMixin):
+    plain_email_body_template = "registration/activation_email_body.txt"
+    html_email_body_template = "registration/activation_email_body.html"
+
     def register(self, form):
         new_user = super(ExtendedRegistrationView, self).register(form)
         self.send_activation_email(new_user)
         return new_user
+
+    def send_activation_email(self, user):
+        activation_key = self.get_activation_key(user)
+        context = self.get_email_context(activation_key)
+        context["user"] = user
+        subject = render_to_string(
+            template_name=self.email_subject_template,
+            context=context,
+            request=self.request,
+        )
+        subject = "".join(subject.splitlines())
+        message = render_to_string(
+            template_name=self.plain_email_body_template,
+            context=context,
+            request=self.request,
+        )
+        html_message = render_to_string(
+            template_name=self.html_email_body_template,
+            context=context,
+            request=self.request,
+        )
+        user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL, html_message=html_message)
 
 
 class EmailActivationView(ActivationView):

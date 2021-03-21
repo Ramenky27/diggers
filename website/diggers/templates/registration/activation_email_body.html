@@ -1,0 +1,19 @@
+{% extends 'diggers/base_email.html' %}
+
+{% block title %}
+    {% include "registration/activation_email_subject.txt" %}
+{% endblock %}
+
+{% block content %}
+    <div>
+        <p>Ви зареєструвалися на сайті {{ site.domain }} як {{ user }}. </p>
+        <p>Для підтвердження e-mail перейдіть будь ласка за посиланням нижче.</p>
+
+        <a href="{{ site.domain }}{% url 'diggers:registration_activate' activation_key %}">
+            {{ site.domain }}{% url 'diggers:registration_activate' activation_key %}
+        </a>
+
+        <p>Посилання будет актуальне {{ expiration_days }} днів.</p>
+        <p>Якщо ви не реєструвались на сайті - просто проігноруйте цей лист.</p>
+    </div>
+{% endblock %}
