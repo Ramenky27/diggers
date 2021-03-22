@@ -12,7 +12,7 @@ from io import BytesIO
 
 
 class User(AbstractUser):
-    avatar = models.ImageField(upload_to='uploads/avatars/', blank=True, null=True, verbose_name='Аватар')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар')
     last_activity = models.DateTimeField(null=True, blank=True, verbose_name='Був на сайті')
     email_change_token = models.CharField(max_length=80, null=True, blank=True, verbose_name='Код підтвердження зміни e-mail')
     new_email = models.CharField(max_length=40, null=True, blank=True, verbose_name='Новий e-mail')
@@ -22,7 +22,7 @@ class User(AbstractUser):
     location = models.CharField(max_length=80, null=True, blank=True, verbose_name='Місцезнаходження')
 
     def get_absolute_url(self):
-        return reverse('diggers:user', kwargs={'username': self.username})
+        return reverse('diggers:list_by_author', kwargs={'author': self.username})
 
     def save(self, *args, **kwargs):
         if self.avatar:

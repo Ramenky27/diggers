@@ -1,43 +1,25 @@
 {% extends 'diggers/layouts/blog.html' %}
 {% load static %}
 
-{% block title %}Блоґ{% endblock %}
+{% block title %}
+    {% if author %}
+        {% if author == request.user %}Мої пости{% else %}Пости користувача {{ author.username }}{% endif %}
+    {% elif category %}
+        Пости категорії {{ category.name }}
+    {% elif tags %}
+        Пости за тегами {{ tags }}
+    {% else %}
+        Блоґ
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     {% if author %}
-        <section>
-            <h2 class="page-content__title h2">Пости користувача {{ author.username }}</h2>
-
-            <div class="row">
-                <div class="column large-3 lining">
-                    {% if author.avatar %}
-                        <img src="{{ author.avatar }}" alt="avatar"/>
-                    {% else %}
-                        <img src="{% static "images/thumb.jpg" %}" alt="avatar"/>
-                    {% endif %}
-                </div>
-                <div class="column large-9 lining">
-                    <dl>
-                        <dt>Ім'я</dt>
-                        <dd>
-                            {% if author.first_name or author.last_namme %}
-                                {{ author.first_name }} {{ author.last_name }}
-                            {% else %}
-                                Не вказано
-                            {% endif %}
-                        </dd>
-                        <dt> День народження:</dt>
-                        <dd>{% if author.birth_date %}{{ author.birth_date }}{% else %}Не вказано{% endif %}</dd>
-                        <dt>Місцезнаходження:</dt>
-                        <dd>{% if author.location %}{{ author.location }}{% else %}Не вказано{% endif %}</dd>
-                        <dt>Реєстрація:</dt>
-                        <dd>{{ author.date_joined }}</dd>
-                        <dt>Був на сайті:</dt>
-                        <dd>{% if author.last_activity %}{{ author.last_activity }}{% else %}Ніколи{% endif %}</dd>
-                    </dl>
-                </div>
-            </div>
-        </section>
+        {% include 'diggers/blocks/profile.html' %}
+    {% elif category %}
+        <h2 class="page-content__title">Пости категорії {{ category.name }}</h2>
+    {% elif tags %}
+        <h2 class="page-content__title">Пости за тегами {{ tags }}</h2>
     {% endif %}
 
     {% for post in posts %}
@@ -58,7 +40,7 @@
                         </li>
                         <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
                         <li>6 Коментарів</li>
-                                             {% if user.is_authenticated and post.author == user or perms.diggers.moderate_post %}
+                                             {% if request.user.is_authenticated and post.author == request.user or perms.diggers.moderate_post %}
                             {% if perms.diggers.change_post %}
                                 <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
                             {% endif %}

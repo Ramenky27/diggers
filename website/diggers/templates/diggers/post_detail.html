@@ -19,7 +19,7 @@
                            rel="category tag">{{ post.category.name }}</a>
                     </li>
                     <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
-                    {% if user.is_authenticated and post.author == user or perms.diggers.moderate_post %}
+                    {% if request.user.is_authenticated and post.author == request.user or perms.diggers.moderate_post %}
                         {% if perms.diggers.change_post %}
                             <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
                         {% endif %}

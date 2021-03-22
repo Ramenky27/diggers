@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 from django.contrib.auth.views import PasswordResetView
 
@@ -8,9 +10,10 @@ from .forms import ExtendedRegistrationForm
 app_name = 'diggers'
 urlpatterns = [
     path('', views.PostList.as_view(), name='post_list'),
-    path('category/<str:category>/', views.PostList.as_view(), name='list_by_category'),
     path('tags/<str:tags>/', views.PostList.as_view(), name='list_by_tags'),
-    path('author/<str:username>/', views.PostListByAuthor.as_view(), name='list_by_author'),
+    path('category/<str:category>/', views.PostListByObject.as_view(), name='list_by_category'),
+    path('author/<str:author>/', views.PostListByObject.as_view(), name='list_by_author'),
+
     path('posts/<int:pk>/', views.PostDetail.as_view(), name='post_detail'),
     path('posts/new', views.PostCreate.as_view(), name='post_create'),
     path('posts/<int:pk>/edit', views.PostUpdate.as_view(), name='post_update'),
@@ -43,5 +46,10 @@ urlpatterns = [
         ),
         name='password_reset'
     ),
-    path('accounts/profile/', views.PostListByAuthor.as_view(), name='profile'),
+    path('accounts/profile/', views.PostListByObject.as_view(by_current_user=True), name='profile'),
+    path('accounts/profile/edit/', views.ProfileEditView.as_view(), name='profile_update')
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

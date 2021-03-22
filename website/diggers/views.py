@@ -1,6 +1,6 @@
 from django.views import generic
+from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.detail import SingleObjectMixin
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse_lazy
@@ -23,55 +23,76 @@ from .forms import PostForm, ExtendedLoginForm
 class PostList(generic.ListView):
     paginate_by = settings.POSTS_PER_PAGE
     context_object_name = 'posts'
+    query = {}
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if 'tags' in self.kwargs:
+            ctx['tags'] = self.kwargs['tags']
+
+        return ctx
 
     def get_queryset(self):
-        query = {}
-
-        if 'category' in self.kwargs:
-            query['category'] = get_object_or_404(Category, route=self.kwargs['category'])
-
         if 'tags' in self.kwargs:
-            query['tags__name__in'] = self.kwargs['tags'].split(",")
+            self.query['tags__name__in'] = self.kwargs['tags'].split(",")
 
-        if not self.request.user.has_perm('diggers.hidden_access'):
-            query['is_hidden'] = False
+        if self.request.user.has_perm('diggers.hidden_access'):
+            self.query['is_hidden'] = False
 
-        q = {k: v for k, v in query.items() if v is not None}
-
+        q = {k: v for k, v in self.query.items() if v is not None}
         return Post.objects.filter(Q(**q)).distinct().order_by('-created_date', '-pk')
 
 
-class PostListByAuthor(SingleObjectMixin, generic.ListView):
-    paginate_by = settings.POSTS_PER_PAGE
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
+class PostListByObject(SingleObjectMixin, PostList):
     query_pk_and_slug = True
+    slug_url_kwarg = None
+    slug_field = None
+    object = None
+    by_current_user = False
 
-    def __init__(self):
-        self.object = None
-
-    def get_object(self, queryset=None):
-        slug = self.kwargs.get(self.slug_url_kwarg)
-
-        if slug is None:
-            self.kwargs[self.slug_url_kwarg] = self.request.user.username
-
-        return super().get_object(queryset=queryset)
+    def __init__(self, **kwargs):
+        self.by_current_user = kwargs.get('by_current_user') is True
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object(queryset=User.objects.all())
+        model = None
+        if 'category' in kwargs:
+            self.slug_url_kwarg = 'category'
+            self.slug_field = 'route'
+            model = Category
+        elif 'author' in kwargs or self.by_current_user:
+            self.slug_url_kwarg = 'author'
+            self.slug_field = 'username'
+            model = User
+            if self.by_current_user:
+                self.kwargs['author'] = request.user.username
+
+        if model:
+            self.object = self.get_object(queryset=model.objects.all())
+        else:
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a QuerySet. Define "
+                "%(cls)s.model, %(cls)s.queryset, or override "
+                "%(cls)s.get_queryset()." % {
+                    'cls': self.__class__.__name__
+                }
+            )
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['author'] = self.object
+        ctx[self.slug_url_kwarg] = self.object
         ctx['posts'] = self.object_list
+
         return ctx
 
     def get_queryset(self):
-        not_hidden = not self.request.user.has_perm('diggers.hidden_access')
-        author = self.object.pk
-        return Post.objects.filter(author__pk=author, is_hidden=not_hidden).distinct().order_by('-created_date', '-pk')
+        if isinstance(self.object, User):
+            self.query['author__pk'] = self.object.pk
+        elif isinstance(self.object, Category):
+            self.query['category'] = self.object
+
+        return PostList.get_queryset(self)
 
 
 class PostDetail(generic.DetailView):
@@ -106,7 +127,7 @@ class PostCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView):
 
 class PostUpdate(LoginRequiredMixin, generic.UpdateView):
     model = Post
-    form_class = PostForm
+    fields = ['title', 'text', 'category', 'tags', 'is_hidden']
     template_name_suffix = '_update_form'
 
     def get_initial(self):
@@ -183,3 +204,13 @@ class EmailActivationView(ActivationView):
             return user
         except User.DoesNotExist:
             raise ActivationError(self.BAD_USERNAME_MESSAGE, code="bad_username")
+
+
+class ProfileEditView(generic.UpdateView):
+    model = User
+    fields = ['first_name', 'last_name', 'email', 'avatar', 'birth_date', 'location']
+    template_name_suffix = '_update_form'
+
+    def get_object(self):
+        pk = self.request.user.pk
+        return User.objects.filter(pk=pk).get()
