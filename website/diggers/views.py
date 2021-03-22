@@ -206,7 +206,7 @@ class EmailActivationView(ActivationView):
             raise ActivationError(self.BAD_USERNAME_MESSAGE, code="bad_username")
 
 
-class ProfileEditView(generic.UpdateView):
+class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     form_class = ProfileForm
     template_name_suffix = '_update_form'
 

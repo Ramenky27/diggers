@@ -15,9 +15,9 @@ urlpatterns = [
     path('author/<str:author>/', views.PostListByObject.as_view(), name='list_by_author'),
 
     path('posts/<int:pk>/', views.PostDetail.as_view(), name='post_detail'),
-    path('posts/new', views.PostCreate.as_view(), name='post_create'),
-    path('posts/<int:pk>/edit', views.PostUpdate.as_view(), name='post_update'),
-    path('posts/<int:pk>/delete', views.PostDelete.as_view(), name='post_delete'),
+    path('posts/new/', views.PostCreate.as_view(), name='post_create'),
+    path('posts/<int:pk>/edit/', views.PostUpdate.as_view(), name='post_update'),
+    path('posts/<int:pk>/delete/', views.PostDelete.as_view(), name='post_delete'),
 
     path(
         'accounts/activate/complete/',
