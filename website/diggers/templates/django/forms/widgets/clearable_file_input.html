@@ -1,0 +1,19 @@
+{% if widget.is_initial %}
+    <label for="{{ id_for_label }}_current">{{ widget.initial_text }}:</label>
+    <a href="{{ widget.value.url }}" id="{{ id_for_label }}_current" target="_blank">
+        <img src="{{ MEDIA_URL }}{{ widget.value.url }}" alt="upload"/>
+    </a>
+    {% if not widget.required %}
+        <label for="{{ widget.checkbox_id }}">
+            <input type="checkbox" name="{{ widget.checkbox_name }}"
+                   id="{{ widget.checkbox_id }}"
+                    {% if widget.attrs.disabled %} disabled{% endif %}/>
+            <span class="label-text">{{ widget.clear_checkbox_label }}</span>
+        </label>
+    {% endif %}
+    <label for="{{ widget.id_for_label }}">
+        {{ widget.input_text }}{% if widget.required %} *{% endif %}
+    </label>
+{% endif %}
+<input type="file" id="{{ widget.id_for_label }}"
+       name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>

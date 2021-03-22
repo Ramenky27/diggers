@@ -724,7 +724,9 @@ fieldset {
 
 input[type="email"], 
 input[type="number"], 
-input[type="search"], 
+input[type="datetime-local"],
+input[type="date"],
+input[type="search"],
 input[type="text"], 
 input[type="tel"], 
 input[type="url"], 

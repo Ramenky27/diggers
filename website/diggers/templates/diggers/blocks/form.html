@@ -39,6 +39,8 @@
                         <span class="label-text">{{ field.label }}{% if field.field.required %}*{% endif %}</span>
                     </label>
                 </div>
+            {% elif field|widget_type == 'fileinput' or field|widget_type == 'clearablefileinput' %}
+                {{ field }}
             {% else %}
                 <label for="{{ field.id_for_label }}">
                     {{ field.label }}{% if field.field.required %} *{% endif %}

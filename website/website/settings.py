@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'widget_tweaks',
     'captcha',
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -118,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uk'
 
 TIME_ZONE = 'Europe/Kiev'
 
@@ -158,3 +159,5 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', False) == 'True'
 DEFAULT_FROM_EMAIL = 'noreply@diggers.kiev.ua'
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.word_challenge'
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

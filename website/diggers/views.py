@@ -14,7 +14,7 @@ from django_registration.exceptions import ActivationError
 from django.template.loader import render_to_string
 
 from .models import Category, User, Post
-from .forms import PostForm, ExtendedLoginForm
+from .forms import PostForm, ExtendedLoginForm, ProfileForm
 
 
 # Create your views here.
@@ -207,8 +207,7 @@ class EmailActivationView(ActivationView):
 
 
 class ProfileEditView(generic.UpdateView):
-    model = User
-    fields = ['first_name', 'last_name', 'email', 'avatar', 'birth_date', 'location']
+    form_class = ProfileForm
     template_name_suffix = '_update_form'
 
     def get_object(self):

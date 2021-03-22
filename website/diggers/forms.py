@@ -51,9 +51,23 @@ class ExtendedRegistrationForm(RegistrationForm):
             "password1",
             "password2",
             "avatar",
+            "birth_date",
+            "location",
             "captcha"
         ]
+        widgets = {
+            'birth_date': forms.widgets.DateInput(attrs={'type': 'date'})
+        }
 
 
 class ExtendedLoginForm(AuthenticationForm):
     remember_me = forms.BooleanField(required=False)
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta(RegistrationForm.Meta):
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'avatar', 'birth_date', 'location']
+        widgets = {
+            'birth_date': forms.widgets.DateInput(attrs={'type': 'date'})
+        }
