@@ -1,5 +1,6 @@
 {% extends 'diggers/layouts/blog.html' %}
 {% load static %}
+{% load plural %}
 
 {% block title %}
     {% if author %}
@@ -39,8 +40,8 @@
                                rel="category tag">{{ post.category.name }}</a>
                         </li>
                         <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
-                        <li>6 Коментарів</li>
-                                             {% if request.user.is_authenticated and post.author == request.user or perms.diggers.moderate_post %}
+                        <li>{{ post.comment_set.all.count }} коментар{{ post.comment_set.all.count | plural:',я,ів' }}</li>
+                        {% if request.user.is_authenticated and post.author == request.user or perms.diggers.moderate_post %}
                             {% if perms.diggers.change_post %}
                                 <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
                             {% endif %}

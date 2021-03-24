@@ -12,9 +12,10 @@ from django_registration.backends.activation.views import ActivationView, Regist
 from django_registration.backends.one_step.views import RegistrationView as OneStepRegistrationView
 from django_registration.exceptions import ActivationError
 from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
 
-from .models import Category, User, Post
-from .forms import PostForm, ExtendedLoginForm, ProfileForm
+from .models import Category, User, Post, Comment
+from .forms import PostForm, ExtendedLoginForm, ProfileForm, CommentCreateForm
 
 
 # Create your views here.
@@ -51,6 +52,7 @@ class PostListByObject(SingleObjectMixin, PostList):
     by_current_user = False
 
     def __init__(self, **kwargs):
+        super().__init__(self)
         self.by_current_user = kwargs.get('by_current_user') is True
 
     def get(self, request, *args, **kwargs):
@@ -100,13 +102,19 @@ class PostDetail(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(PostDetail, self).get_context_data(**kwargs)
+        current = ctx['post']
+
+        if self.request.user.is_authenticated and self.request.user.email_verified is True:
+            ctx['form'] = CommentCreateForm(initial={
+                'author': self.request.user,
+                'post': self.object
+            })
 
         query = {}
         if not self.request.user.has_perm('diggers.hidden_access'):
             query['is_hidden'] = False
 
         qs = Post.objects.all().order_by('created_date', 'pk')
-        current = ctx['post']
         ctx['next_post'] = next_in_order(current, qs=qs)
         ctx['prev_post'] = prev_in_order(current, qs=qs)
         return ctx
@@ -125,20 +133,26 @@ class PostCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView):
         return self.initial
 
 
-class PostUpdate(LoginRequiredMixin, generic.UpdateView):
+class PostUpdate(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
     model = Post
     fields = ['title', 'text', 'category', 'tags', 'is_hidden']
     template_name_suffix = '_update_form'
+
+    def test_func(self):
+        return self.request.user.email_verified is True
 
     def get_initial(self):
         self.initial.update({'author': self.request.user})
         return self.initial
 
 
-class PostDelete(LoginRequiredMixin, generic.DeleteView):
+class PostDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
     model = Post
     template_name_suffix = '_confirm_delete'
     success_url = reverse_lazy('diggers:post_list')
+
+    def test_func(self):
+        return self.request.user.email_verified is True
 
 
 class ExtendedLoginView(LoginView):
@@ -210,6 +224,67 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     form_class = ProfileForm
     template_name_suffix = '_update_form'
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         pk = self.request.user.pk
         return User.objects.filter(pk=pk).get()
+
+
+class CommentCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView):
+    model = Comment
+    form_class = CommentCreateForm
+    template_name_suffix = '_create_form'
+
+    def test_func(self):
+        return self.request.user.email_verified is True
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CommentCreate, self).get_context_data(**kwargs)
+        ctx['parent'] = self.initial.get('parent')
+        return ctx
+
+    def get_initial(self):
+        if 'cpk' in self.kwargs:
+            parent = get_object_or_404(Comment, pk=self.kwargs.get('cpk'))
+            self.initial.update({'parent': parent})
+            post = parent.post
+        else:
+            post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
+
+        self.initial.update({
+            'author': self.request.user,
+            'post': post
+        })
+        return self.initial
+
+    def get_success_url(self):
+        return "{url}#comment{pk}".format(
+            url=reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk}),
+            pk=self.object.pk
+        )
+
+
+class CommentUpdate(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
+    model = Comment
+    fields = ['text']
+    template_name_suffix = '_update_form'
+
+    def test_func(self):
+        return self.request.user.email_verified is True
+
+    def get_success_url(self):
+        return "{url}#comment{pk}".format(
+            url=reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk}),
+            pk=self.object.pk
+        )
+
+
+class CommentDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+    model = Comment
+    template_name_suffix = '_confirm_delete'
+
+    def test_func(self):
+        return self.request.user.email_verified is True
+
+    def get_success_url(self):
+        return reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk})
+

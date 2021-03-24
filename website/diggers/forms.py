@@ -4,13 +4,12 @@ from django_registration.forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from captcha.fields import CaptchaField
 
-from .models import Post, User
+from .models import Post, User, Comment
 
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        template_name = 'diggers/blocks/form.html'
         fields = ['title', 'text', 'category', 'tags', 'is_hidden']
 
     def __init__(self, *args, **kwargs):
@@ -38,6 +37,36 @@ class PostForm(forms.ModelForm):
         cleaned_data['tags'] = tags
 
         return cleaned_data
+
+
+class CommentCreateForm(forms.ModelForm):
+    parent = None
+
+    class Meta:
+        model = Comment
+        fields = ['text']
+
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs['initial']['author']
+        self.post = kwargs['initial']['post']
+        if 'parent' in kwargs['initial']:
+            self.parent = kwargs['initial']['parent']
+
+        super(CommentCreateForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        obj = super(CommentCreateForm, self).save(commit=False)
+        obj.author = self.author
+        obj.post = self.post
+
+        if self.parent:
+            obj.parent = self.parent
+
+        if commit:
+            obj.save()
+            self.save_m2m()
+
+        return obj
 
 
 class ExtendedRegistrationForm(RegistrationForm):

@@ -1,0 +1,23 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Видалення коментаря {{ comment.text | truncatechars:80 }}{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+
+        <h2 class="page-content__title h1">Видалення коментаря  {{ comment.text | truncatechars:80 }}</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <p class="lead">
+                Ви підтверджуєте видалення коментаря?
+            </p>
+
+            <p>
+                <input type="submit" class="btn btn--primary" value="Видалити">
+                <a class="btn btn--stroke" href="{{ view.get_success_url }}">Скасувати</a>
+            </p>
+        </form>
+    </section> <!-- end page -->
+{% endblock %}
