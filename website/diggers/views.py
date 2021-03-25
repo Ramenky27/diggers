@@ -53,7 +53,7 @@ class PostListByObject(SingleObjectMixin, PostList):
     by_current_user = False
 
     def __init__(self, **kwargs):
-        super().__init__(self)
+        super().__init__()
         self.by_current_user = kwargs.get('by_current_user') is True
 
     def get(self, request, *args, **kwargs):
