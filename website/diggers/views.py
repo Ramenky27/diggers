@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import Q
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from next_prev import next_in_order, prev_in_order
@@ -244,7 +245,7 @@ class CommentCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView)
 
     def get_initial(self):
         if 'cpk' in self.kwargs:
-            parent = get_object_or_404(Comment, pk=self.kwargs.get('cpk'))
+            parent = get_object_or_404(Comment, pk=self.kwargs.get('cpk'), is_deleted=False)
             self.initial.update({'parent': parent})
             post = parent.post
         else:
@@ -268,6 +269,10 @@ class CommentUpdate(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView)
     fields = ['text']
     template_name_suffix = '_update_form'
 
+    def get_queryset(self):
+        qs = super(CommentUpdate, self).get_queryset()
+        return qs.filter(is_deleted=False)
+
     def test_func(self):
         return self.request.user.email_verified is True
 
@@ -284,6 +289,17 @@ class CommentDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView)
 
     def test_func(self):
         return self.request.user.email_verified is True
+
+    def get_queryset(self):
+        qs = super(CommentDelete, self).get_queryset()
+        return qs.filter(is_deleted=False)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.is_deleted = True
+        self.object.save(update_fields=['is_deleted'])
+        success_url = self.get_success_url()
+        return HttpResponseRedirect(success_url)
 
     def get_success_url(self):
         return reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk})

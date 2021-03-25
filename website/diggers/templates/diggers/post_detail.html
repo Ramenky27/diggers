@@ -83,17 +83,17 @@
                         depth-{{ node.level }} comment {% if node.is_deleted %}deleted{% endif %}"
                                 id="comment{{ node.pk }}">
 
-                                <div class="comment__avatar">
-                                    {% if node.author.avatar and not node.is_deleted %}
-                                        <img src="{{ MEDIA_URL }}{{ node.author.avatar }}" alt="avatar"/>
-                                    {% else %}
-                                        <img src="{% static "images/thumb.jpg" %}" alt="avatar"/>
-                                    {% endif %}
-                                </div>
+                                {% if not node.is_deleted %}
+                                    <div class="comment__avatar">
+                                        {% if node.author.avatar %}
+                                            <img src="{{ MEDIA_URL }}{{ node.author.avatar }}" alt="avatar"/>
+                                        {% else %}
+                                            <img src="{% static "images/thumb.jpg" %}" alt="avatar"/>
+                                        {% endif %}
+                                    </div>
 
-                                <div class="comment__content">
+                                    <div class="comment__content">
 
-                                    {% if not node.is_deled %}
                                         <div class="comment__info">
                                             <div class="comment__author">{{ node.author.username }}</div>
 
@@ -116,20 +116,24 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-                                    {% endif %}
 
-                                    <div class="comment__text">
-                                        <p>
-                                            {% if not node.is_deleted %}
+                                        <div class="comment__text">
+                                            <p>
                                                 {{ node.text }}
-                                            {% else %}
-                                                Коментар видалено
-                                            {% endif %}
-                                        </p>
+                                            </p>
+                                        </div>
                                     </div>
-
-                                </div>
-
+                                {% else %}
+                                    <div class="comment__avatar"></div>
+                                    <div class="comment__content">
+                                        <div class="comment__info"></div>
+                                        <div class="comment__text">
+                                            <p>
+                                                Коментар видалено
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endif %}
 
                                 {% if not node.is_leaf_node %}
                                     <ul class="children">
