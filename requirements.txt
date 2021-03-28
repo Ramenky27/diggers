@@ -9,3 +9,4 @@ django-next-prev~=1.1
 django-widget-tweaks~=1.4
 django-registration~=3.1
 django-simple-captcha~=0.5
+django-polymorphic~=3.0

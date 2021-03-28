@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import Q
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from next_prev import next_in_order, prev_in_order
@@ -15,14 +15,20 @@ from django_registration.exceptions import ActivationError
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 
-from .models import Category, User, Post, Comment
-from .forms import PostForm, ExtendedLoginForm, ProfileForm, CommentCreateForm
+from .models import Category, User, Comment, PostAbstract, Post, Map
+from .forms import PostCreateForm, MapCreateForm, PostForm, MapForm, ExtendedLoginForm, ProfileForm, CommentCreateForm
 
 
 # Create your views here.
 
 
+class CheckUserVerifiedMixin(LoginRequiredMixin, UserPassesTestMixin, generic.View):
+    def test_func(self):
+        return self.request.user.email_verified is True
+
+
 class PostList(generic.ListView):
+    template_name = 'diggers/post_list.html'
     paginate_by = settings.POSTS_PER_PAGE
     context_object_name = 'posts'
     query = {}
@@ -40,9 +46,15 @@ class PostList(generic.ListView):
 
         if self.request.user.has_perm('diggers.hidden_access'):
             self.query['is_hidden'] = False
+            self.query['instance_of'] = Post
 
         q = {k: v for k, v in self.query.items() if v is not None}
-        return Post.objects.filter(Q(**q)).distinct().order_by('-created_date', '-pk')
+        return PostAbstract.objects.filter(Q(**q)).order_by('-created_date', '-pk')
+
+
+class MapList(PostList):
+    def get_queryset(self):
+        return super(PostList, self).get_queryset().select_subclasses(Map)
 
 
 class PostListByObject(SingleObjectMixin, PostList):
@@ -98,8 +110,28 @@ class PostListByObject(SingleObjectMixin, PostList):
         return PostList.get_queryset(self)
 
 
+class PostAbstractCreate(CheckUserVerifiedMixin, generic.CreateView):
+    model = PostAbstract
+    template_name_suffix = '_create_form'
+
+    def get_initial(self):
+        self.initial.update({'author': self.request.user})
+        return self.initial
+
+
 class PostDetail(generic.DetailView):
-    model = Post
+    model = PostAbstract
+    object = None
+
+    def get(self):
+        self.object = self.get_object()
+
+        if isinstance(self.object, Map):
+            response = HttpResponse(self.object.file, content_type=self.object.file.content_type)
+            response['Content-Disposition'] = 'attachment; filename="{name}"'.format(name=self.object.file.name)
+            return response
+
+        return super(PostDetail, self).get()
 
     def get_context_data(self, **kwargs):
         ctx = super(PostDetail, self).get_context_data(**kwargs)
@@ -121,39 +153,47 @@ class PostDetail(generic.DetailView):
         return ctx
 
 
-class PostCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView):
+class PostCreate(PostAbstractCreate):
     model = Post
-    form_class = PostForm
-    template_name_suffix = '_create_form'
+    form_class = PostCreateForm
+
+
+class MapCreate(PostAbstractCreate):
+    model = Map
+    form_class = MapCreateForm
+    success_url = reverse_lazy('diggers:map_list')
 
     def test_func(self):
-        return self.request.user.email_verified is True
-
-    def get_initial(self):
-        self.initial.update({'author': self.request.user})
-        return self.initial
+        return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
 
 
-class PostUpdate(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
-    model = Post
-    fields = ['title', 'text', 'category', 'tags', 'is_hidden']
+class PostUpdate(CheckUserVerifiedMixin, generic.UpdateView):
+    model = PostAbstract
     template_name_suffix = '_update_form'
 
+    def get_form_class(self):
+        if isinstance(self.object, Map):
+            return MapForm
+
+        return PostForm
+
     def test_func(self):
-        return self.request.user.email_verified is True
+        if isinstance(self.object, Map):
+            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
 
-    def get_initial(self):
-        self.initial.update({'author': self.request.user})
-        return self.initial
+        return super().test_func()
 
 
-class PostDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
-    model = Post
+class PostDelete(CheckUserVerifiedMixin, generic.DeleteView):
+    model = PostAbstract
     template_name_suffix = '_confirm_delete'
     success_url = reverse_lazy('diggers:post_list')
 
     def test_func(self):
-        return self.request.user.email_verified is True
+        if isinstance(self.object, Map):
+            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+
+        return super().test_func()
 
 
 class ExtendedLoginView(LoginView):
@@ -167,14 +207,9 @@ class ExtendedLoginView(LoginView):
         return super(ExtendedLoginView, self).form_valid(form)
 
 
-class ExtendedRegistrationView(OneStepRegistrationView, ActivationEmailMixin):
+class HTMLActivationEmailMixin(ActivationEmailMixin):
     plain_email_body_template = "registration/activation_email_body.txt"
     html_email_body_template = "registration/activation_email_body.html"
-
-    def register(self, form):
-        new_user = super(ExtendedRegistrationView, self).register(form)
-        self.send_activation_email(new_user)
-        return new_user
 
     def send_activation_email(self, user):
         activation_key = self.get_activation_key(user)
@@ -197,6 +232,13 @@ class ExtendedRegistrationView(OneStepRegistrationView, ActivationEmailMixin):
             request=self.request,
         )
         user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL, html_message=html_message)
+
+
+class ExtendedRegistrationView(OneStepRegistrationView, HTMLActivationEmailMixin):
+    def register(self, form):
+        new_user = super(ExtendedRegistrationView, self).register(form)
+        self.send_activation_email(new_user)
+        return new_user
 
 
 class EmailActivationView(ActivationView):
@@ -230,13 +272,10 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
         return User.objects.filter(pk=pk).get()
 
 
-class CommentCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView):
+class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
     model = Comment
     form_class = CommentCreateForm
     template_name_suffix = '_create_form'
-
-    def test_func(self):
-        return self.request.user.email_verified is True
 
     def get_context_data(self, **kwargs):
         ctx = super(CommentCreate, self).get_context_data(**kwargs)
@@ -249,7 +288,7 @@ class CommentCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView)
             self.initial.update({'parent': parent})
             post = parent.post
         else:
-            post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
+            post = get_object_or_404(PostAbstract, pk=self.kwargs.get('pk'))
 
         self.initial.update({
             'author': self.request.user,
@@ -257,6 +296,12 @@ class CommentCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView)
         })
         return self.initial
 
+    def test_func(self):
+        if isinstance(self.post, Map):
+            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+
+        return super().test_func()
+
     def get_success_url(self):
         return "{url}#comment{pk}".format(
             url=reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk}),
@@ -264,18 +309,21 @@ class CommentCreate(LoginRequiredMixin, UserPassesTestMixin, generic.CreateView)
         )
 
 
-class CommentUpdate(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
+class CommentUpdate(CheckUserVerifiedMixin, generic.UpdateView):
     model = Comment
     fields = ['text']
     template_name_suffix = '_update_form'
+
+    def test_func(self):
+        if isinstance(self.object.post, Map):
+            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+
+        return super().test_func()
 
     def get_queryset(self):
         qs = super(CommentUpdate, self).get_queryset()
         return qs.filter(is_deleted=False)
 
-    def test_func(self):
-        return self.request.user.email_verified is True
-
     def get_success_url(self):
         return "{url}#comment{pk}".format(
             url=reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk}),
@@ -283,12 +331,16 @@ class CommentUpdate(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView)
         )
 
 
-class CommentDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
+class CommentDelete(CheckUserVerifiedMixin, generic.DeleteView):
     model = Comment
     template_name_suffix = '_confirm_delete'
+    object = None
 
     def test_func(self):
-        return self.request.user.email_verified is True
+        if isinstance(self.object.post, Map):
+            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+
+        return super().test_func()
 
     def get_queryset(self):
         qs = super(CommentDelete, self).get_queryset()
@@ -303,4 +355,3 @@ class CommentDelete(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView)
 
     def get_success_url(self):
         return reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk})
-

@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
+from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Post, Comment, Category, Map
+from .models import User, Post, Comment, Category, PostAbstract, Map
 from mptt.admin import MPTTModelAdmin
 
 
@@ -17,6 +18,7 @@ def send_activation(request, queryset):
 send_activation.short_description = 'Надіслати код підтвердження'
 
 
+@admin.register(User)
 class DiggersUserAdmin(UserAdmin):
     list_filter = ['is_active', 'is_staff', 'email_verified', 'is_banned', 'last_login', 'date_joined']
     date_hierarchy = 'date_joined'
@@ -35,26 +37,37 @@ class DiggersUserAdmin(UserAdmin):
     actions = [send_activation]
 
 
+@admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     base_model = Category
     list_display = ('name', 'route')
     ordering = ('name', 'route')
 
 
-class PostAbstractAdmin(admin.ModelAdmin):
-    list_filter = ('created_date', 'tags')
+@admin.register(Post)
+class PostAdmin(PolymorphicChildModelAdmin):
+    show_in_index = True
+
+    list_filter = ('created_date', 'tags', 'is_hidden')
+    list_display = ('title', 'created_date', 'modified_date', 'author', 'is_hidden')
+
+
+@admin.register(Map)
+class MapAdmin(PolymorphicChildModelAdmin):
+    show_in_index = True
+
+
+@admin.register(PostAbstract)
+class PostAbstractAdmin(PolymorphicParentModelAdmin):
+    base_model = PostAbstract
+    list_filter = ('created_date', 'tags', PolymorphicChildModelFilter)
     list_display = ('title', 'created_date', 'modified_date', 'author')
     date_hierarchy = 'created_date'
     search_fields = ['title']
+    child_models = (Post, Map)
 
 
-class PostAdmin(PostAbstractAdmin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.list_filter = self.list_filter + ('category',)
-        self.list_display = self.list_display + ('category',)
-
-
+@admin.register(Comment)
 class CommentsAdmin(MPTTModelAdmin):
     mptt_level_indent = 10
     mptt_indent_field = 'get_short_text'
@@ -72,10 +85,3 @@ class CommentsAdmin(MPTTModelAdmin):
         return str(obj)
 
     get_short_text.short_description = 'Текст'
-
-
-admin.site.register(User, DiggersUserAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Post, PostAdmin)
-admin.site.register(Map, PostAbstractAdmin)
-admin.site.register(Comment, CommentsAdmin)

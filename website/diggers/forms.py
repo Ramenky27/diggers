@@ -4,28 +4,10 @@ from django_registration.forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from captcha.fields import CaptchaField
 
-from .models import Post, User, Comment
+from .models import User, Comment
 
 
-class PostForm(forms.ModelForm):
-    class Meta:
-        model = Post
-        fields = ['title', 'text', 'category', 'tags', 'is_hidden']
-
-    def __init__(self, *args, **kwargs):
-        self.author = kwargs['initial']['author']
-        super(PostForm, self).__init__(*args, **kwargs)
-
-    def save(self, commit=True):
-        obj = super(PostForm, self).save(commit=False)
-        obj.author = self.author
-
-        if commit:
-            obj.save()
-            self.save_m2m()
-
-        return obj
-
+class PostAbstractForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
@@ -37,6 +19,40 @@ class PostForm(forms.ModelForm):
         cleaned_data['tags'] = tags
 
         return cleaned_data
+
+
+class AttachCurrentUserMixin(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs['initial']['author']
+        super(AttachCurrentUserMixin, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        obj = super(AttachCurrentUserMixin, self).save(commit=False)
+        obj.author = self.author
+
+        if commit:
+            obj.save()
+            self.save_m2m()
+
+        return obj
+
+
+class PostForm(PostAbstractForm):
+    class Meta:
+        fields = ['title', 'text', 'category', 'tags', 'is_hidden']
+
+
+class MapForm(PostAbstractForm):
+    class Meta:
+        fields = ['title', 'file', 'description', 'tags']
+
+
+class PostCreateForm(AttachCurrentUserMixin, PostForm):
+    pass
+
+
+class MapCreateForm(AttachCurrentUserMixin, MapForm):
+    pass
 
 
 class CommentCreateForm(forms.ModelForm):

@@ -1,4 +1,5 @@
 from django.db import models
+from polymorphic.models import PolymorphicModel
 from django.urls import reverse
 from django.contrib.auth.models import AbstractUser
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -64,8 +65,24 @@ class Category(models.Model):
         verbose_name_plural = 'Категорії'
 
 
-class Post(models.Model):
+class PostAbstract(PolymorphicModel):
     title = models.CharField(max_length=80, verbose_name='Заголовок')
+    author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
+    tags = TaggableManager(blank=True, verbose_name='Тэги')
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
+    modified_date = models.DateTimeField(auto_now=True, verbose_name='Дата редагування')
+
+    def __str__(self):
+        return self.title
+
+    permissions = (
+        ('hidden_access', 'Доступ до прихованих постів'),
+    )
+
+
+class Post(PostAbstract):
+    is_hidden = models.BooleanField(default=False, verbose_name='Зробити прихованим')
+    text = models.TextField(verbose_name='Текст')
     category = models.ForeignKey(
         Category,
         blank=True,
@@ -73,30 +90,35 @@ class Post(models.Model):
         verbose_name='Категорія',
         on_delete=models.CASCADE
     )
-    text = models.TextField(verbose_name='Текст')
-    author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
-    tags = TaggableManager(blank=True, verbose_name='Тэги')
-    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
-    modified_date = models.DateTimeField(auto_now=True, verbose_name='Дата редагування')
-    is_hidden = models.BooleanField(default=False, verbose_name='Зробити прихованим')
 
     def get_absolute_url(self):
         return reverse('diggers:post_detail', kwargs={'pk': self.pk})
-
-    def __str__(self):
-        return self.title
 
     class Meta:
         verbose_name = 'Пост'
         verbose_name_plural = 'Пости'
         permissions = (
             ('moderate_post', 'Модерація постів'),
-            ('hidden_access', 'Доступ до прихованих постів'),
+        )
+
+
+class Map(PostAbstract):
+    file = models.ImageField(upload_to='uploads/%Y/%m/%d/', verbose_name='Файл')
+    description = models.TextField(blank=True, verbose_name='Опис')
+
+    def get_absolute_url(self):
+        return reverse('diggers:map', kwargs={'pk': self.pk})
+
+    class Meta:
+        verbose_name = 'Мапа'
+        verbose_name_plural = 'Мапи'
+        permissions = (
+            ('moderate_map', 'Модерація мап'),
         )
 
 
 class Comment(MPTTModel):
-    post = models.ForeignKey(Post, verbose_name='Пост', on_delete=models.CASCADE)
+    post = models.ForeignKey(PostAbstract, verbose_name='Пост', on_delete=models.CASCADE)
     author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
     text = models.TextField(verbose_name='Текст')
     parent = TreeForeignKey(
@@ -125,29 +147,3 @@ class Comment(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['created_date']
 
-
-class Map(models.Model):
-    title = models.CharField(max_length=80, verbose_name='Назва')
-    file = models.ImageField(upload_to='uploads/%Y/%m/%d/', verbose_name='Файл')
-    description = models.TextField(blank=True, verbose_name='Опис')
-    author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
-    tags = TaggableManager(blank=True, verbose_name='Тэги')
-    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
-    modified_date = models.DateTimeField(auto_now=True, verbose_name='Дата редагування')
-
-    def _tags(self):
-        return [t.name for t in self.tags.all()]
-
-    def get_absolute_url(self):
-        return reverse('diggers:map', kwargs={'pk': self.pk})
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = 'Мапа'
-        verbose_name_plural = 'Мапи'
-        permissions = (
-            ('moderate_map', 'Модерація мап'),
-            ('map_access', 'Доступ до мап'),
-        )

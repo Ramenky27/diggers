@@ -10,6 +10,7 @@ from .forms import ExtendedRegistrationForm
 app_name = 'diggers'
 urlpatterns = [
     path('', views.PostList.as_view(), name='post_list'),
+    path('category/maps/', views.MapList.as_view(), name='map_list'),
     path('tags/<str:tags>/', views.PostList.as_view(), name='list_by_tags'),
     path('category/<str:category>/', views.PostListByObject.as_view(), name='list_by_category'),
     path('author/<str:author>/', views.PostListByObject.as_view(), name='list_by_author'),
@@ -18,6 +19,8 @@ urlpatterns = [
     path('posts/new/', views.PostCreate.as_view(), name='post_create'),
     path('posts/<int:pk>/edit/', views.PostUpdate.as_view(), name='post_update'),
     path('posts/<int:pk>/delete/', views.PostDelete.as_view(), name='post_delete'),
+
+    path('maps/new/', views.MapCreate.as_view(), name='map_create'),
 
     path('posts/<int:pk>/comment/new/', views.CommentCreate.as_view(), name='comment_create'),
     path('comment/<int:cpk>/answer/', views.CommentCreate.as_view(), name='comment_answer'),
