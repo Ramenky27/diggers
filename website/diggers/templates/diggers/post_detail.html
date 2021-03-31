@@ -14,31 +14,15 @@
                 <a href="{% url 'diggers:post_detail' post.pk %}" title="">{{ post.title }}</a>
             </h2>
 
-            <div class="entry__meta">
-                <ul>
-                    <li>{{ post.created_date }}</li>
-                    <li>
-                        <a href="{% url 'diggers:list_by_category' category=post.category.route %}" title=""
-                           rel="category tag">{{ post.category.name }}</a>
-                    </li>
-                    <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
-                    {% if request.user.is_authenticated and post.author == request.user or perms.diggers.moderate_post %}
-                        {% if perms.diggers.change_post %}
-                            <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
-                        {% endif %}
-
-                        {% if perms.diggers.delete_cmspost %}
-                            <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
-                        {% endif %}
-                    {% endif %}
-                </ul>
-
-            </div>
-
+            {% include "diggers/blocks/post_meta.html" %}
         </header> <!-- entry__header -->
 
         <div class="entry__content">
-            {{ post.text|linebreaks }}
+            {% if post.file %}
+                {% include "diggers/blocks/post_map_content.html" %}
+            {% else %}
+                {{ post.text|linebreaks }}
+            {% endif %}
         </div> <!-- entry__content -->
 
         {% if post.tags.all %}
@@ -95,7 +79,9 @@
                                     <div class="comment__content">
 
                                         <div class="comment__info">
-                                            <div class="comment__author">{{ node.author.username }}</div>
+                                            <div class="comment__author">
+                                                <a href="{% url 'diggers:list_by_author' node.author.username %}">{{ node.author.username }}</a>
+                                            </div>
 
                                             <div class="comment__meta">
                                                 <div class="comment__time">{{ node.created_date }}</div>

@@ -4,7 +4,7 @@ from django_registration.forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from captcha.fields import CaptchaField
 
-from .models import User, Comment
+from .models import User, Comment, Post, Map
 
 
 class PostAbstractForm(forms.ModelForm):
@@ -39,11 +39,13 @@ class AttachCurrentUserMixin(forms.ModelForm):
 
 class PostForm(PostAbstractForm):
     class Meta:
+        model = Post
         fields = ['title', 'text', 'category', 'tags', 'is_hidden']
 
 
 class MapForm(PostAbstractForm):
     class Meta:
+        model = Map
         fields = ['title', 'file', 'description', 'tags']
 
 

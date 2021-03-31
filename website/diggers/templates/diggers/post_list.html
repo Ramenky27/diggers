@@ -1,6 +1,5 @@
 {% extends 'diggers/layouts/blog.html' %}
 {% load static %}
-{% load plural %}
 
 {% block title %}
     {% if author %}
@@ -32,66 +31,49 @@
                     <a href="{% url 'diggers:post_detail' post.pk %}" title="">{{ post.title }}</a>
                 </h2>
 
-                <div class="entry__meta">
-                    <ul>
-                        <li>{{ post.created_date }}</li>
-                        <li>
-                            <a href="{% url 'diggers:list_by_category' category=post.category.route %}" title=""
-                               rel="category tag">{{ post.category.name }}</a>
-                        </li>
-                        <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
-                        <li>{{ post.comment_set.all.count }} коментар{{ post.comment_set.all.count | plural:',я,ів' }}</li>
-                        {% if request.user.is_authenticated and post.author == request.user or perms.diggers.moderate_post %}
-                            {% if perms.diggers.change_post %}
-                                <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
-                            {% endif %}
-
-                            {% if perms.diggers.delete_cmspost %}
-                                <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
-                            {% endif %}
-                        {% endif %}
-                    </ul>
-                </div>
+                {% include "diggers/blocks/post_meta.html" %}
 
             </header>
 
             <div class="entry__content">
-                {{ post.text|truncatechars:400|linebreaks }}
-                {% if post.text|length > 400 %}
-                    <a href="{% url 'diggers:post_detail' post.pk %}">Читати далі...</a>
+                {% if post.file %}
+                    {% include "diggers/blocks/post_map_content.html" %}
+                {% else %}
+                    {{ post.text|truncatechars:400|linebreaks }}
+                    {% if post.text|length > 400 %}
+                        <a href="{% url 'diggers:post_detail' post.pk %}">Читати далі...</a>
+                    {% endif %}
                 {% endif %}
             </div>
         </article> <!-- end entry -->
     {% endfor %}
 
-    {% if posts.has_other_pages %}
+    {% if is_paginated %}
         <!-- page nav -->
-        <div class="post-list-nav">
-            <nav class="pgn">
-                <ul>
-                    {% if posts.has_previous %}
-                        <li>
-                            <a rel="prev" class="pgn__prev" href="?page={{ posts.previous_page_number }}">Попередня</a>
-                        </li>
-                    {% endif %}
+        <nav class="pgn">
+            <ul>
+                {% if page_obj.has_previous %}
+                    <li>
+                        <a rel="prev" class="pgn__prev" href="?page={{ page_obj.previous_page_number }}">Попередня</a>
+                    </li>
+                {% endif %}
 
-                    {% for i in posts.paginator.page_range %}
-                        <li>
-                            {% if posts.number == i %}
-                                <span class="pgn__num current">{{ i }}</span>
-                            {% else %}
-                                <a rel="page{{ i }}" class="pgn__num" href="?page={{ i }}">{{ i }}</a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
+                {% for i in page_obj.paginator.page_range %}
+                    <li>
+                        {% if page_obj.number == i %}
+                            <span class="pgn__num current">{{ i }}</span>
+                        {% else %}
+                            <a rel="page{{ i }}" class="pgn__num" href="?page={{ i }}">{{ i }}</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
 
-                    {% if posts.has_next %}
-                        <li>
-                            <a rel="next" class="pgn__next" href="?page={{ posts.next_page_number }}">Наступна</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+                {% if page_obj.has_next %}
+                    <li>
+                        <a rel="next" class="pgn__next" href="?page={{ page_obj.next_page_number }}">Наступна</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     {% endif %}
 {% endblock %}

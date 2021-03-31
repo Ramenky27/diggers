@@ -9,9 +9,9 @@
                 <a href="{% url 'diggers:list_by_category' category=category.route %}">{{ category }}</a>
                 ({{ category.posts_count }})
             </li>
-            {% if request.user.is_authenticated and perms.diggers.hidden_access %}
-                <li><a href="{% url 'diggers:map_list' %}">Мапи</a></li>
-            {% endif %}
         {% endfor %}
+        {% if request.user.is_authenticated and perms.diggers.hidden_access %}
+            <li><a href="{% url 'diggers:map_list' %}">Мапи</a></li>
+        {% endif %}
     </ul>
 </div>

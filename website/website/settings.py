@@ -136,8 +136,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/uploads/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 PROFILE_AVATAR_SIZE = (80, 80)
 
@@ -145,7 +145,7 @@ TAGGIT_CASE_INSENSITIVE = True
 
 AUTH_USER_MODEL = 'diggers.User'
 
-POSTS_PER_PAGE = 25
+POSTS_PER_PAGE = 10
 
 ACCOUNT_ACTIVATION_DAYS = 7
 REGISTRATION_OPEN = True

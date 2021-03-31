@@ -21,6 +21,7 @@ urlpatterns = [
     path('posts/<int:pk>/delete/', views.PostDelete.as_view(), name='post_delete'),
 
     path('maps/new/', views.MapCreate.as_view(), name='map_create'),
+    path('map/<int:pk>/', views.MapDownload.as_view(), name='map_download'),
 
     path('posts/<int:pk>/comment/new/', views.CommentCreate.as_view(), name='comment_create'),
     path('comment/<int:cpk>/answer/', views.CommentCreate.as_view(), name='comment_answer'),

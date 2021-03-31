@@ -7,6 +7,6 @@ register = template.Library()
 
 @register.simple_tag
 def categories():
-    queryset = Category.objects.annotate(posts_count=Count('post')).all()
+    queryset = Category.objects.annotate(posts_count=Count('postabstract')).all()
 
     return queryset

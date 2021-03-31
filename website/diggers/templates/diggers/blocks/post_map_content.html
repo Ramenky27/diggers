@@ -1,0 +1,5 @@
+<a href="{% url 'diggers:map_download' post.pk %}" target="_blank">Завантажити</a>
+<br>
+<a href="{{ MEDIA_URL }}{{ post.file }}" target="_blank">
+    <img src="{{ MEDIA_URL }}{{ post.file }}" alt="upload"/>
+</a>

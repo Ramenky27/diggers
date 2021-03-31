@@ -66,14 +66,26 @@ class Category(models.Model):
 
 
 class PostAbstract(PolymorphicModel):
-    title = models.CharField(max_length=80, verbose_name='Заголовок')
+    title = models.CharField(max_length=120, verbose_name='Заголовок')
     author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
     tags = TaggableManager(blank=True, verbose_name='Тэги')
-    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
-    modified_date = models.DateTimeField(auto_now=True, verbose_name='Дата редагування')
+    created_date = models.DateTimeField(verbose_name='Дата створення')
+    modified_date = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Дата редагування')
+    is_hidden = models.BooleanField(default=False, verbose_name='Зробити прихованим')
+    category = models.ForeignKey(
+        Category,
+        blank=True,
+        null=True,
+        verbose_name='Категорія',
+        on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Пости'
 
     permissions = (
         ('hidden_access', 'Доступ до прихованих постів'),
@@ -81,22 +93,14 @@ class PostAbstract(PolymorphicModel):
 
 
 class Post(PostAbstract):
-    is_hidden = models.BooleanField(default=False, verbose_name='Зробити прихованим')
     text = models.TextField(verbose_name='Текст')
-    category = models.ForeignKey(
-        Category,
-        blank=True,
-        null=False,
-        verbose_name='Категорія',
-        on_delete=models.CASCADE
-    )
 
     def get_absolute_url(self):
         return reverse('diggers:post_detail', kwargs={'pk': self.pk})
 
     class Meta:
-        verbose_name = 'Пост'
-        verbose_name_plural = 'Пости'
+        verbose_name = 'Текстовий пост'
+        verbose_name_plural = 'Текстові пости'
         permissions = (
             ('moderate_post', 'Модерація постів'),
         )
@@ -107,7 +111,11 @@ class Map(PostAbstract):
     description = models.TextField(blank=True, verbose_name='Опис')
 
     def get_absolute_url(self):
-        return reverse('diggers:map', kwargs={'pk': self.pk})
+        return reverse('diggers:post_detail', kwargs={'pk': self.pk})
+
+    def save(self, *args, **kwargs):
+        self.is_hidden = True
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Мапа'
@@ -131,8 +139,8 @@ class Comment(MPTTModel):
         on_delete=models.CASCADE
     )
     is_deleted = models.BooleanField(default=False, verbose_name='Видалено')
-    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
-    modified_date = models.DateTimeField(auto_now=True, verbose_name='Дата редагування')
+    created_date = models.DateTimeField(verbose_name='Дата створення')
+    modified_date = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Дата редагування')
 
     def __str__(self):
         return self.text[:80]

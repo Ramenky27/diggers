@@ -1,6 +1,4 @@
 from django.views import generic
-from django.core.exceptions import ImproperlyConfigured
-from django.views.generic.detail import SingleObjectMixin
 from django.db.models import Q
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
@@ -31,38 +29,43 @@ class PostList(generic.ListView):
     template_name = 'diggers/post_list.html'
     paginate_by = settings.POSTS_PER_PAGE
     context_object_name = 'posts'
-    query = {}
+    model = PostAbstract
+    ordering = ['-created_date', '-pk']
 
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
+        ctx = super(PostList, self).get_context_data(**kwargs)
         if 'tags' in self.kwargs:
             ctx['tags'] = self.kwargs['tags']
 
         return ctx
 
     def get_queryset(self):
+        query = {}
         if 'tags' in self.kwargs:
-            self.query['tags__name__in'] = self.kwargs['tags'].split(",")
+            query['tags__name__in'] = self.kwargs['tags'].split(",")
 
-        if self.request.user.has_perm('diggers.hidden_access'):
-            self.query['is_hidden'] = False
-            self.query['instance_of'] = Post
+        if not self.request.user.has_perm('diggers.hidden_access'):
+            query['is_hidden'] = False
+            query['instance_of'] = Post
 
-        q = {k: v for k, v in self.query.items() if v is not None}
-        return PostAbstract.objects.filter(Q(**q)).order_by('-created_date', '-pk')
+        q = {k: v for k, v in query.items() if v is not None}
+        return super(PostList, self).get_queryset().filter(Q(**q))
 
 
 class MapList(PostList):
+    model = Map
+
     def get_queryset(self):
-        return super(PostList, self).get_queryset().select_subclasses(Map)
+        return super(MapList, self).get_queryset().filter(instance_of=Map)
 
 
-class PostListByObject(SingleObjectMixin, PostList):
+class PostListByObject(generic.detail.SingleObjectMixin, PostList):
     query_pk_and_slug = True
     slug_url_kwarg = None
     slug_field = None
     object = None
     by_current_user = False
+    model = PostAbstract
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -81,33 +84,26 @@ class PostListByObject(SingleObjectMixin, PostList):
             if self.by_current_user:
                 self.kwargs['author'] = request.user.username
 
-        if model:
-            self.object = self.get_object(queryset=model.objects.all())
-        else:
-            raise ImproperlyConfigured(
-                "%(cls)s is missing a QuerySet. Define "
-                "%(cls)s.model, %(cls)s.queryset, or override "
-                "%(cls)s.get_queryset()." % {
-                    'cls': self.__class__.__name__
-                }
-            )
+        self.object = self.get_object(queryset=model.objects.all())
+        return super(PostList, self).get(request, *args, **kwargs)
 
-        return super().get(request, *args, **kwargs)
+    def get_queryset(self):
+        query = {}
+        if isinstance(self.object, User):
+            query['author__pk'] = self.object.pk
+        elif isinstance(self.object, Category):
+            query['category'] = self.object
+
+        q = {k: v for k, v in query.items() if v is not None}
+
+        return super(PostList, self).get_queryset().filter(Q(**q))
 
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
+        ctx = super(PostListByObject, self).get_context_data(**kwargs)
         ctx[self.slug_url_kwarg] = self.object
         ctx['posts'] = self.object_list
 
         return ctx
-
-    def get_queryset(self):
-        if isinstance(self.object, User):
-            self.query['author__pk'] = self.object.pk
-        elif isinstance(self.object, Category):
-            self.query['category'] = self.object
-
-        return PostList.get_queryset(self)
 
 
 class PostAbstractCreate(CheckUserVerifiedMixin, generic.CreateView):
@@ -121,17 +117,13 @@ class PostAbstractCreate(CheckUserVerifiedMixin, generic.CreateView):
 
 class PostDetail(generic.DetailView):
     model = PostAbstract
+    context_object_name = 'post'
+    template_name = "diggers/post_detail.html"
     object = None
 
-    def get(self):
+    def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-
-        if isinstance(self.object, Map):
-            response = HttpResponse(self.object.file, content_type=self.object.file.content_type)
-            response['Content-Disposition'] = 'attachment; filename="{name}"'.format(name=self.object.file.name)
-            return response
-
-        return super(PostDetail, self).get()
+        return super(PostDetail, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(PostDetail, self).get_context_data(**kwargs)
@@ -153,6 +145,18 @@ class PostDetail(generic.DetailView):
         return ctx
 
 
+class MapDownload(generic.DetailView):
+    model = Map
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        response = HttpResponse(self.object.file, content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename="{name}"'.format(name=self.object.file.name)
+        return response
+
+
 class PostCreate(PostAbstractCreate):
     model = Post
     form_class = PostCreateForm
@@ -161,15 +165,23 @@ class PostCreate(PostAbstractCreate):
 class MapCreate(PostAbstractCreate):
     model = Map
     form_class = MapCreateForm
-    success_url = reverse_lazy('diggers:map_list')
 
     def test_func(self):
-        return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+        return self.request.user.has_perm('diggers.hidden_access') and super(MapCreate, self).test_func()
 
 
 class PostUpdate(CheckUserVerifiedMixin, generic.UpdateView):
     model = PostAbstract
     template_name_suffix = '_update_form'
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(PostUpdate, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(PostUpdate, self).post(request, *args, **kwargs)
 
     def get_form_class(self):
         if isinstance(self.object, Map):
@@ -179,21 +191,30 @@ class PostUpdate(CheckUserVerifiedMixin, generic.UpdateView):
 
     def test_func(self):
         if isinstance(self.object, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+            return self.request.user.has_perm('diggers.hidden_access') and super(PostUpdate, self).test_func()
 
-        return super().test_func()
+        return super(PostUpdate, self).test_func()
 
 
 class PostDelete(CheckUserVerifiedMixin, generic.DeleteView):
     model = PostAbstract
     template_name_suffix = '_confirm_delete'
     success_url = reverse_lazy('diggers:post_list')
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(PostDelete, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(PostDelete, self).post(request, *args, **kwargs)
 
     def test_func(self):
         if isinstance(self.object, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+            return self.request.user.has_perm('diggers.hidden_access') and super(PostDelete, self).test_func()
 
-        return super().test_func()
+        return super(PostDelete, self).test_func()
 
 
 class ExtendedLoginView(LoginView):
@@ -298,9 +319,9 @@ class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
 
     def test_func(self):
         if isinstance(self.post, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+            return self.request.user.has_perm('diggers.hidden_access') and super(CommentCreate, self).test_func()
 
-        return super().test_func()
+        return super(CommentCreate, self).test_func()
 
     def get_success_url(self):
         return "{url}#comment{pk}".format(
@@ -316,9 +337,9 @@ class CommentUpdate(CheckUserVerifiedMixin, generic.UpdateView):
 
     def test_func(self):
         if isinstance(self.object.post, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+            return self.request.user.has_perm('diggers.hidden_access') and super(CommentUpdate, self).test_func()
 
-        return super().test_func()
+        return super(CommentUpdate, self).test_func()
 
     def get_queryset(self):
         qs = super(CommentUpdate, self).get_queryset()
@@ -338,9 +359,9 @@ class CommentDelete(CheckUserVerifiedMixin, generic.DeleteView):
 
     def test_func(self):
         if isinstance(self.object.post, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super().test_func()
+            return self.request.user.has_perm('diggers.hidden_access') and super(CommentDelete, self).test_func()
 
-        return super().test_func()
+        return super(CommentDelete, self).test_func()
 
     def get_queryset(self):
         qs = super(CommentDelete, self).get_queryset()

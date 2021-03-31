@@ -1,0 +1,27 @@
+{% load plural %}
+
+<div class="entry__meta">
+    <ul>
+        <li>{{ post.created_date }}</li>
+        <li>
+            {% if post.file %}
+                <a href="{% url 'diggers:map_list' %}" title=""
+                   rel="category tag">Мапи</a>
+            {% else %}
+                <a href="{% url 'diggers:list_by_category' category=post.category.route %}" title=""
+                   rel="category tag">{{ post.category.name }}</a>
+            {% endif %}
+        </li>
+        <li><a href="{% url 'diggers:list_by_author' post.author %}">{{ post.author }}</a></li>
+        <li>{{ post.comment_set.all.count }} коментар{{ post.comment_set.all.count | plural:',я,ів' }}</li>
+        {% if request.user.is_authenticated and post.author == request.user %}
+            {% if perms.diggers.change_post %}
+                <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
+            {% endif %}
+
+            {% if perms.diggers.delete_cmspost %}
+                <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>

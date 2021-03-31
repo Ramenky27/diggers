@@ -44,27 +44,24 @@ class CategoryAdmin(admin.ModelAdmin):
     ordering = ('name', 'route')
 
 
+@admin.register(PostAbstract)
+class PostAbstractAdmin(PolymorphicParentModelAdmin):
+    base_model = PostAbstract
+    list_filter = ('created_date', 'tags', PolymorphicChildModelFilter, 'is_hidden')
+    list_display = ('title', 'created_date', 'modified_date', 'author', 'is_hidden')
+    date_hierarchy = 'created_date'
+    search_fields = ['title']
+    child_models = (Post, Map)
+
+
 @admin.register(Post)
 class PostAdmin(PolymorphicChildModelAdmin):
     show_in_index = True
-
-    list_filter = ('created_date', 'tags', 'is_hidden')
-    list_display = ('title', 'created_date', 'modified_date', 'author', 'is_hidden')
 
 
 @admin.register(Map)
 class MapAdmin(PolymorphicChildModelAdmin):
     show_in_index = True
-
-
-@admin.register(PostAbstract)
-class PostAbstractAdmin(PolymorphicParentModelAdmin):
-    base_model = PostAbstract
-    list_filter = ('created_date', 'tags', PolymorphicChildModelFilter)
-    list_display = ('title', 'created_date', 'modified_date', 'author')
-    date_hierarchy = 'created_date'
-    search_fields = ['title']
-    child_models = (Post, Map)
 
 
 @admin.register(Comment)
