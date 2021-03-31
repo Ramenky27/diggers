@@ -69,7 +69,7 @@ class PostAbstract(PolymorphicModel):
     title = models.CharField(max_length=120, verbose_name='Заголовок')
     author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.CASCADE)
     tags = TaggableManager(blank=True, verbose_name='Тэги')
-    created_date = models.DateTimeField(verbose_name='Дата створення')
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
     modified_date = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Дата редагування')
     is_hidden = models.BooleanField(default=False, verbose_name='Зробити прихованим')
     category = models.ForeignKey(
@@ -139,7 +139,7 @@ class Comment(MPTTModel):
         on_delete=models.CASCADE
     )
     is_deleted = models.BooleanField(default=False, verbose_name='Видалено')
-    created_date = models.DateTimeField(verbose_name='Дата створення')
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
     modified_date = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Дата редагування')
 
     def __str__(self):

@@ -87,7 +87,8 @@ class Command(BaseCommand):
                            'taggit_tag.name '
                            'FROM taggit_taggeditem '
                            'LEFT JOIN taggit_tag ON taggit_taggeditem.tag_id=taggit_tag.id '
-                           'WHERE taggit_taggeditem.object_id=%d' % old_post['id'])
+                           'WHERE taggit_taggeditem.object_id=%d '
+                           'AND taggit_taggeditem.content_type_id=12' % old_post['id'])
             tags = cursor.fetchall()
 
             new_post = Post.objects.create(
@@ -95,6 +96,7 @@ class Command(BaseCommand):
                 author=author,
                 category=category,
                 created_date=old_post['created_date'],
+                modified_date=old_post['modifed_date'],
                 is_hidden=old_post['is_permited'],
                 text=old_post['text'],
             )
@@ -123,19 +125,21 @@ class Command(BaseCommand):
                            'taggit_tag.name '
                            'FROM taggit_taggeditem '
                            'LEFT JOIN taggit_tag ON taggit_taggeditem.tag_id=taggit_tag.id '
-                           'WHERE taggit_taggeditem.object_id=%d' % old_map['id'])
+                           'WHERE taggit_taggeditem.object_id=%d '
+                           'AND taggit_taggeditem.content_type_id=15' % old_map['id'])
             tags = cursor.fetchall()
 
-            new_nap = Map.objects.create(
+            new_map = Map.objects.create(
                 title=old_map['title'],
                 file=old_map['file'],
                 description=old_map['description'],
                 created_date=old_map['created_date'],
+                modified_date=old_map['modifed_date'],
                 author=author,
             )
 
             for tag in tags:
-                new_nap.tags.add(tag['name'])
+                new_map.tags.add(tag['name'])
 
             print('Map %s added' % (old_map['title'],))
 
@@ -168,6 +172,7 @@ class Command(BaseCommand):
                 text=comment['text'],
                 is_deleted=comment['is_deleted'],
                 created_date=comment['created_date'],
+                modified_date=comment['modifed_date'],
                 author=author,
                 parent=parent,
                 post=post,
