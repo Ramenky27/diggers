@@ -8,6 +8,10 @@ from .models import User, Comment, Post, Map
 
 
 class PostAbstractForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs['initial']['author']
+        super(PostAbstractForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -22,10 +26,6 @@ class PostAbstractForm(forms.ModelForm):
 
 
 class AttachCurrentUserMixin(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.author = kwargs['initial']['author']
-        super(AttachCurrentUserMixin, self).__init__(*args, **kwargs)
-
     def save(self, commit=True):
         obj = super(AttachCurrentUserMixin, self).save(commit=False)
         obj.author = self.author
@@ -38,6 +38,11 @@ class AttachCurrentUserMixin(forms.ModelForm):
 
 
 class PostForm(PostAbstractForm):
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        if not self.author.has_perm('diggers.hidden_access'):
+            self.fields['is_hidden'].widget = forms.HiddenInput()
+
     class Meta:
         model = Post
         fields = ['title', 'text', 'category', 'tags', 'is_hidden']

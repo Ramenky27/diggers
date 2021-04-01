@@ -96,7 +96,7 @@ class PostListByObject(generic.detail.SingleObjectMixin, PostList):
 
         q = {k: v for k, v in query.items() if v is not None}
 
-        return super(PostList, self).get_queryset().filter(Q(**q))
+        return PostList.get_queryset(self).filter(Q(**q))
 
     def get_context_data(self, **kwargs):
         ctx = super(PostListByObject, self).get_context_data(**kwargs)
@@ -115,11 +115,16 @@ class PostAbstractCreate(CheckUserVerifiedMixin, generic.CreateView):
         return self.initial
 
 
-class PostDetail(generic.DetailView):
+class PostDetail(generic.DetailView, UserPassesTestMixin):
     model = PostAbstract
     context_object_name = 'post'
     template_name = "diggers/post_detail.html"
     object = None
+
+    def test_func(self):
+        if self.object.is_hidden:
+            return self.request.user.has_perm('diggers.hidden_access')
+        return True
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -138,8 +143,11 @@ class PostDetail(generic.DetailView):
         query = {}
         if not self.request.user.has_perm('diggers.hidden_access'):
             query['is_hidden'] = False
+            query['instance_of'] = Post
 
-        qs = Post.objects.all().order_by('created_date', 'pk')
+        q = {k: v for k, v in query.items() if v is not None}
+
+        qs = Post.objects.filter(Q(**q)).order_by('created_date', 'pk')
         ctx['next_post'] = next_in_order(current, qs=qs)
         ctx['prev_post'] = prev_in_order(current, qs=qs)
         return ctx
@@ -174,6 +182,10 @@ class PostUpdate(CheckUserVerifiedMixin, generic.UpdateView):
     model = PostAbstract
     template_name_suffix = '_update_form'
     object = None
+
+    def get_initial(self):
+        self.initial.update({'author': self.request.user})
+        return self.initial
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
