@@ -2,6 +2,11 @@
 
 <div class="entry__meta">
     <ul>
+        {% if post.is_hidden %}
+            <li><svg class="svg-inline--fa fa-lock fa-w-16" width="1792" height="1792" viewBox="0 0 1792 1792" aria-hidden="true" focusable="false" data-prefix="fa" data-icon="lock" role="img" xmlns="http://www.w3.org/2000/svg" data-fa-i2svg="">
+                    <path d="M640 768h512v-192q0-106-75-181t-181-75-181 75-75 181v192zm832 96v576q0 40-28 68t-68 28h-960q-40 0-68-28t-28-68v-576q0-40 28-68t68-28h32v-192q0-184 132-316t316-132 316 132 132 316v192h32q40 0 68 28t28 68z"/>
+                </svg><!--<i class="fa fa-lock" aria-hidden="true"></i>--></li>
+        {% endif %}
         <li>{{ post.created_date }}</li>
         <li>
             {% if post.file %}
