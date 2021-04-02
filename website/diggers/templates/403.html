@@ -1,0 +1,12 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Помилка 403{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Помилка 403</h2>
+
+        <p>В доступі відмовлено. Можливо в вас не має доступу до цієї сторінки.</p>
+        <p><a href="{% url 'diggers:post_list' %}">На головну</a></p>
+    </section>
+{% endblock %}

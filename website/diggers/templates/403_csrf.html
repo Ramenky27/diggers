@@ -1,0 +1,12 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Помилка CSRF{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Помилка CSRF</h2>
+
+        <p>CRSF токен застарів або відсутній. Спробуйте перейти назад та відправити форму ще раз.</p>
+        <p><a href="{% url 'diggers:post_list' %}">На головну</a></p>
+    </section>
+{% endblock %}

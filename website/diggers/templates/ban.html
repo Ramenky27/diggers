@@ -1,0 +1,12 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Аккаунт заблоковано{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Аккаунт заблоковано</h2>
+
+        <p>Вибачте, ваш аккаунт було заблоковано. Можливо до прийняття такого рішення модераторським складом призвів розміщений вами контент.</p>
+        <p><a href="{% url 'logout' %}">Вийти з аккаунта</a></p>
+    </section>
+{% endblock %}

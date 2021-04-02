@@ -1,7 +1,8 @@
 from django.views import generic
 from django.db.models import Q
 from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponse
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from next_prev import next_in_order, prev_in_order
@@ -24,9 +25,6 @@ class CheckUserVerifiedMixin(UserPassesTestMixin, generic.View):
     def test_func(self):
         return self.request.user.email_verified is True
 
-    def handle_no_permission(self):
-        return HttpResponseForbidden()
-
 
 class HiddenAccessMixin(UserPassesTestMixin, generic.detail.SingleObjectMixin, generic.View):
     def test_func(self):
@@ -36,17 +34,11 @@ class HiddenAccessMixin(UserPassesTestMixin, generic.detail.SingleObjectMixin, g
 
         return True
 
-    def handle_no_permission(self):
-        return HttpResponseForbidden()
-
 
 class OwnerCheckMixin(UserPassesTestMixin, generic.detail.SingleObjectMixin, generic.View):
     def test_func(self):
         obj = self.get_object()
         return obj.author == self.request.user
-
-    def handle_no_permission(self):
-        return HttpResponseForbidden()
 
 
 class CheckModifyPermissionsMixin(CheckUserVerifiedMixin, OwnerCheckMixin, HiddenAccessMixin):
@@ -96,7 +88,7 @@ class MapList(PostList):
 
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.has_perm('diggers.hidden_access'):
-            return HttpResponseForbidden()
+            raise PermissionDenied
 
         super(MapList, self).dispatch(request, *args, **kwargs)
 
@@ -201,17 +193,17 @@ class MapDownload(HiddenAccessMixin, generic.DetailView):
         return response
 
 
-class PostCreate(CheckUserVerifiedMixin, PostAbstractCreate):
+class PostCreate(LoginRequiredMixin, CheckUserVerifiedMixin, PostAbstractCreate):
     model = Post
     form_class = PostCreateForm
 
 
-class MapCreate(CheckUserVerifiedMixin, PostAbstractCreate):
+class MapCreate(LoginRequiredMixin, CheckUserVerifiedMixin, PostAbstractCreate):
     model = Map
     form_class = MapCreateForm
 
 
-class PostUpdate(CheckModifyPermissionsMixin, generic.UpdateView):
+class PostUpdate(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.UpdateView):
     model = PostAbstract
     template_name_suffix = '_update_form'
     object = None
@@ -227,7 +219,7 @@ class PostUpdate(CheckModifyPermissionsMixin, generic.UpdateView):
         return PostForm
 
 
-class PostDelete(CheckModifyPermissionsMixin, generic.DeleteView):
+class PostDelete(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.DeleteView):
     model = PostAbstract
     template_name_suffix = '_confirm_delete'
     success_url = reverse_lazy('diggers:post_list')
@@ -309,7 +301,7 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
         return User.objects.filter(pk=pk).get()
 
 
-class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
+class CommentCreate(LoginRequiredMixin, CheckUserVerifiedMixin, generic.CreateView):
     model = Comment
     form_class = CommentCreateForm
     template_name_suffix = '_create_form'
@@ -337,7 +329,7 @@ class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
         self.initial = self.get_initial()
 
         if self.initial.get('post').is_hidden and not self.request.user.has_perm('diggers.hidden_access'):
-            return HttpResponseForbidden()
+            raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -348,7 +340,7 @@ class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
         )
 
 
-class CommentUpdate(CheckModifyPermissionsMixin, generic.UpdateView):
+class CommentUpdate(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.UpdateView):
     model = Comment
     fields = ['text']
     template_name_suffix = '_update_form'
@@ -364,7 +356,7 @@ class CommentUpdate(CheckModifyPermissionsMixin, generic.UpdateView):
         )
 
 
-class CommentDelete(CheckModifyPermissionsMixin, generic.DeleteView):
+class CommentDelete(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.DeleteView):
     model = Comment
     template_name_suffix = '_confirm_delete'
     object = None

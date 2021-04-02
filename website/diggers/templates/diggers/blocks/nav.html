@@ -19,7 +19,6 @@
             </ul>
         </li>
     {% endif %}
-    <li><a href="#">Користувачі</a></li>
 
     {% if not request.user.is_authenticated %}
         <li {% if request.path == login_url %}class="current"{% endif %}><a href="{{ login_url }}">Вхід</a></li>

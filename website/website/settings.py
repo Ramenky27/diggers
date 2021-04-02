@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.urls import reverse_lazy
 
 load_dotenv(verbose=True)
 
@@ -27,9 +28,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False')
+DEBUG = os.getenv('DEBUG', False) != 'False'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    os.getenv('DOMAIN', ''),
+]
 
 
 # Application definition
@@ -161,3 +166,5 @@ DEFAULT_FROM_EMAIL = 'noreply@diggers.kiev.ua'
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.word_challenge'
 
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
+LOGIN_URL = reverse_lazy('login')

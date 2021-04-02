@@ -1,0 +1,12 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Помилка 400{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Помилка 400</h2>
+
+        <p>Сталася помилка при вводі данних</p>
+        <p><a href="{% url 'diggers:post_list' %}">На головну</a></p>
+    </section>
+{% endblock %}
