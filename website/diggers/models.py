@@ -86,10 +86,9 @@ class PostAbstract(PolymorphicModel):
     class Meta:
         verbose_name = 'Пост'
         verbose_name_plural = 'Пости'
-
-    permissions = (
-        ('hidden_access', 'Доступ до прихованих постів'),
-    )
+        permissions = (
+            ('hidden_access', 'Доступ до прихованих постів'),
+        )
 
 
 class Post(PostAbstract):
@@ -141,6 +140,9 @@ class Comment(MPTTModel):
     is_deleted = models.BooleanField(default=False, verbose_name='Видалено')
     created_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата створення')
     modified_date = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Дата редагування')
+
+    def is_hidden(self):
+        return self.post.is_hidden
 
     def __str__(self):
         return self.text[:80]

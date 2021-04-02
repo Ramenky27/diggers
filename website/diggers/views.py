@@ -1,7 +1,7 @@
 from django.views import generic
 from django.db.models import Q
 from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from next_prev import next_in_order, prev_in_order
@@ -20,9 +20,48 @@ from .forms import PostCreateForm, MapCreateForm, PostForm, MapForm, ExtendedLog
 # Create your views here.
 
 
-class CheckUserVerifiedMixin(LoginRequiredMixin, UserPassesTestMixin, generic.View):
+class CheckUserVerifiedMixin(UserPassesTestMixin, generic.View):
     def test_func(self):
         return self.request.user.email_verified is True
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden()
+
+
+class HiddenAccessMixin(UserPassesTestMixin, generic.detail.SingleObjectMixin, generic.View):
+    def test_func(self):
+        obj = self.get_object()
+        if obj.is_hidden:
+            return self.request.user.has_perm('diggers.hidden_access')
+
+        return True
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden()
+
+
+class OwnerCheckMixin(UserPassesTestMixin, generic.detail.SingleObjectMixin, generic.View):
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden()
+
+
+class CheckModifyPermissionsMixin(CheckUserVerifiedMixin, OwnerCheckMixin, HiddenAccessMixin):
+    object = None
+
+    def get_object(self, queryset=None):
+        if self.object:
+            return self.object
+
+        return super().get_object(queryset=queryset)
+
+    def test_func(self):
+        return CheckUserVerifiedMixin.test_func(self) \
+               and OwnerCheckMixin.test_func(self) \
+               and HiddenAccessMixin.test_func(self)
 
 
 class PostList(generic.ListView):
@@ -54,6 +93,12 @@ class PostList(generic.ListView):
 
 class MapList(PostList):
     model = Map
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.has_perm('diggers.hidden_access'):
+            return HttpResponseForbidden()
+
+        super(MapList, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return super(MapList, self).get_queryset().filter(instance_of=Map)
@@ -106,7 +151,7 @@ class PostListByObject(generic.detail.SingleObjectMixin, PostList):
         return ctx
 
 
-class PostAbstractCreate(CheckUserVerifiedMixin, generic.CreateView):
+class PostAbstractCreate(generic.CreateView):
     model = PostAbstract
     template_name_suffix = '_create_form'
 
@@ -115,20 +160,11 @@ class PostAbstractCreate(CheckUserVerifiedMixin, generic.CreateView):
         return self.initial
 
 
-class PostDetail(generic.DetailView, UserPassesTestMixin):
+class PostDetail(HiddenAccessMixin, generic.DetailView):
     model = PostAbstract
     context_object_name = 'post'
     template_name = "diggers/post_detail.html"
     object = None
-
-    def test_func(self):
-        if self.object.is_hidden:
-            return self.request.user.has_perm('diggers.hidden_access')
-        return True
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(PostDetail, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(PostDetail, self).get_context_data(**kwargs)
@@ -153,7 +189,7 @@ class PostDetail(generic.DetailView, UserPassesTestMixin):
         return ctx
 
 
-class MapDownload(generic.DetailView):
+class MapDownload(HiddenAccessMixin, generic.DetailView):
     model = Map
     object = None
 
@@ -165,20 +201,17 @@ class MapDownload(generic.DetailView):
         return response
 
 
-class PostCreate(PostAbstractCreate):
+class PostCreate(CheckUserVerifiedMixin, PostAbstractCreate):
     model = Post
     form_class = PostCreateForm
 
 
-class MapCreate(PostAbstractCreate):
+class MapCreate(CheckUserVerifiedMixin, PostAbstractCreate):
     model = Map
     form_class = MapCreateForm
 
-    def test_func(self):
-        return self.request.user.has_perm('diggers.hidden_access') and super(MapCreate, self).test_func()
 
-
-class PostUpdate(CheckUserVerifiedMixin, generic.UpdateView):
+class PostUpdate(CheckModifyPermissionsMixin, generic.UpdateView):
     model = PostAbstract
     template_name_suffix = '_update_form'
     object = None
@@ -187,46 +220,17 @@ class PostUpdate(CheckUserVerifiedMixin, generic.UpdateView):
         self.initial.update({'author': self.request.user})
         return self.initial
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(PostUpdate, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(PostUpdate, self).post(request, *args, **kwargs)
-
     def get_form_class(self):
         if isinstance(self.object, Map):
             return MapForm
 
         return PostForm
 
-    def test_func(self):
-        if isinstance(self.object, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super(PostUpdate, self).test_func()
 
-        return super(PostUpdate, self).test_func()
-
-
-class PostDelete(CheckUserVerifiedMixin, generic.DeleteView):
+class PostDelete(CheckModifyPermissionsMixin, generic.DeleteView):
     model = PostAbstract
     template_name_suffix = '_confirm_delete'
     success_url = reverse_lazy('diggers:post_list')
-    object = None
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(PostDelete, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(PostDelete, self).post(request, *args, **kwargs)
-
-    def test_func(self):
-        if isinstance(self.object, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super(PostDelete, self).test_func()
-
-        return super(PostDelete, self).test_func()
 
 
 class ExtendedLoginView(LoginView):
@@ -329,11 +333,13 @@ class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
         })
         return self.initial
 
-    def test_func(self):
-        if isinstance(self.post, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super(CommentCreate, self).test_func()
+    def dispatch(self, request, *args, **kwargs):
+        self.initial = self.get_initial()
 
-        return super(CommentCreate, self).test_func()
+        if self.initial.get('post').is_hidden and not self.request.user.has_perm('diggers.hidden_access'):
+            return HttpResponseForbidden()
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return "{url}#comment{pk}".format(
@@ -342,16 +348,10 @@ class CommentCreate(CheckUserVerifiedMixin, generic.CreateView):
         )
 
 
-class CommentUpdate(CheckUserVerifiedMixin, generic.UpdateView):
+class CommentUpdate(CheckModifyPermissionsMixin, generic.UpdateView):
     model = Comment
     fields = ['text']
     template_name_suffix = '_update_form'
-
-    def test_func(self):
-        if isinstance(self.object.post, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super(CommentUpdate, self).test_func()
-
-        return super(CommentUpdate, self).test_func()
 
     def get_queryset(self):
         qs = super(CommentUpdate, self).get_queryset()
@@ -364,16 +364,10 @@ class CommentUpdate(CheckUserVerifiedMixin, generic.UpdateView):
         )
 
 
-class CommentDelete(CheckUserVerifiedMixin, generic.DeleteView):
+class CommentDelete(CheckModifyPermissionsMixin, generic.DeleteView):
     model = Comment
     template_name_suffix = '_confirm_delete'
     object = None
-
-    def test_func(self):
-        if isinstance(self.object.post, Map):
-            return self.request.user.has_perm('diggers.hidden_access') and super(CommentDelete, self).test_func()
-
-        return super(CommentDelete, self).test_func()
 
     def get_queryset(self):
         qs = super(CommentDelete, self).get_queryset()
