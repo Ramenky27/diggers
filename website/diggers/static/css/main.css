@@ -1987,6 +1987,36 @@ button::-moz-focus-inner, input::-moz-focus-inner {
     background: #9fcc7f;
 }
 
+.tagcloud a.tag-level-1 {
+    font-size: 1rem;
+    line-height: 0.8;
+}
+
+.tagcloud a.tag-level-2 {
+    font-size: 1.125rem;
+    line-height: 1.1;
+}
+
+.tagcloud a.tag-level-3 {
+    font-size: 1.266rem;
+    line-height: 1.246;
+}
+
+.tagcloud a.tag-level-4 {
+    font-size: 1.424rem;
+    line-height: 1.404;
+}
+
+.tagcloud a.tag-level-5 {
+    font-size: 1.602rem;
+    line-height: 1.582;
+}
+
+.tagcloud a.tag-level-6 {
+    font-size: 1.802rem;
+    line-height: 1.782;
+}
+
 /* search  */
 
 .widget--search h3 {
