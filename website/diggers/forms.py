@@ -113,7 +113,7 @@ class ExtendedRegistrationForm(RegistrationForm):
 
 
 class ExtendedLoginForm(AuthenticationForm):
-    remember_me = forms.BooleanField(required=False)
+    remember_me = forms.BooleanField(required=False, label='Запам’ятати мене')
 
 
 class ProfileForm(forms.ModelForm):

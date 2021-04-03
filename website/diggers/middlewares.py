@@ -23,8 +23,12 @@ class LastActivityMiddleware:
     def __call__(self, request):
         current_user = request.user
         if current_user.is_authenticated:
-            tdelta = timezone.now() - current_user.last_activity
-            if tdelta.seconds > 900:
+            if current_user.last_activity:
+                tdelta = timezone.now() - current_user.last_activity
+                if tdelta.seconds > 900:
+                    current_user.last_activity = timezone.now()
+                    current_user.save()
+            else:
                 current_user.last_activity = timezone.now()
                 current_user.save()
 

@@ -231,6 +231,7 @@ class PostDelete(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.Delete
 
 class ExtendedLoginView(LoginView):
     form_class = ExtendedLoginForm
+    redirect_authenticated_user = True
 
     def form_valid(self, form):
         remember_me = form.cleaned_data['remember_me']
@@ -268,6 +269,17 @@ class HTMLActivationEmailMixin(ActivationEmailMixin):
 
 
 class ExtendedRegistrationView(OneStepRegistrationView, HTMLActivationEmailMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            redirect_to = reverse_lazy('diggers:post_list')
+            if redirect_to == self.request.path:
+                raise ValueError(
+                    "Redirection loop for authenticated user detected. Check that "
+                    "your LOGIN_REDIRECT_URL doesn't point to a login page."
+                )
+            return HttpResponseRedirect(redirect_to)
+        return super().dispatch(request, *args, **kwargs)
+
     def register(self, form):
         new_user = super(ExtendedRegistrationView, self).register(form)
         self.send_activation_email(new_user)
