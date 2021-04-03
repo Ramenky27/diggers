@@ -2,7 +2,6 @@ from django.views import generic
 from django.db.models import Q
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from next_prev import next_in_order, prev_in_order
@@ -83,14 +82,11 @@ class PostList(generic.ListView):
         return super(PostList, self).get_queryset().filter(Q(**q))
 
 
-class MapList(PostList):
+class MapList(UserPassesTestMixin, PostList):
     model = Map
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.has_perm('diggers.hidden_access'):
-            raise PermissionDenied
-
-        super(MapList, self).dispatch(request, *args, **kwargs)
+    def test_func(self):
+        return self.request.user.has_perm('diggers.hidden_access')
 
     def get_queryset(self):
         return super(MapList, self).get_queryset().filter(instance_of=Map)
@@ -325,11 +321,14 @@ class CommentCreate(LoginRequiredMixin, CheckUserVerifiedMixin, generic.CreateVi
         })
         return self.initial
 
+    def test_func(self):
+        if self.initial.get('post').is_hidden:
+            return self.request.user.has_perm('diggers.hidden_access') and super(CommentCreate, self).test_func()
+
+        return super(CommentCreate, self).test_func()
+
     def dispatch(self, request, *args, **kwargs):
         self.initial = self.get_initial()
-
-        if self.initial.get('post').is_hidden and not self.request.user.has_perm('diggers.hidden_access'):
-            raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
 
