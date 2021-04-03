@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'diggers.middlewares.BanManagement',
 ]
 
 ROOT_URLCONF = 'website.urls'
@@ -168,3 +169,4 @@ CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.word_challenge'
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 LOGIN_URL = reverse_lazy('login')
+LOGOUT_REDIRECT_URL = 'diggers:post_list'

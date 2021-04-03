@@ -1,0 +1,30 @@
+{% extends 'diggers/layouts/page.html' %}
+
+{% block title %}Вхід{% endblock %}
+
+{% block content %}
+    <section class="page-content">
+        <h2 class="page-content__title h1">Вхід</h2>
+
+        <form method="post">
+            {% include "diggers/blocks/form.html" %}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}"/>
+            {% else %}
+                <input type="hidden" name="next" value="{% url 'diggers:post_list' %}"/>
+            {% endif %}
+
+            <button type="submit" class="btn--primary h-full-width">Увійти</button>
+        </form>
+
+        <div>
+            <p>
+                <a href="{% url 'diggers:password_reset' %}">Забули пароль?</a>
+            </p>
+            <p>
+                <a href="{% url 'diggers:registration' %}">Реєстрація</a>
+            </p>
+        </div>
+    </section>
+{% endblock %}
