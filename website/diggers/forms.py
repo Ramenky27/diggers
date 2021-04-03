@@ -40,6 +40,8 @@ class AttachCurrentUserMixin(forms.ModelForm):
 class PostForm(PostAbstractForm):
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
+        self.fields['category'].empty_label = None
+        self.fields['category'].required = True
         if not self.author.has_perm('diggers.hidden_access'):
             self.fields['is_hidden'].widget = forms.HiddenInput()
 
