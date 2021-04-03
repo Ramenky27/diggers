@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'diggers.middlewares.BanManagement',
+    'diggers.middlewares.LastActivityMiddleware',
 ]
 
 ROOT_URLCONF = 'website.urls'
