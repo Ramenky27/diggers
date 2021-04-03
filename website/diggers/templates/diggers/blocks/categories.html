@@ -11,7 +11,7 @@
             </li>
         {% endfor %}
         {% if request.user.is_authenticated and perms.diggers.hidden_access %}
-            <li><a href="{% url 'diggers:map_list' %}">Мапи</a></li>
+            <li><a href="{% url 'diggers:map_list' %}">Мапи</a> ({% maps_count %})</li>
         {% endif %}
     </ul>
 </div>

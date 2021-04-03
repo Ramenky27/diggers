@@ -88,6 +88,14 @@ class MapList(UserPassesTestMixin, PostList):
     def test_func(self):
         return self.request.user.has_perm('diggers.hidden_access')
 
+    def get_context_data(self, **kwargs):
+        ctx = super(MapList, self).get_context_data(**kwargs)
+        ctx['category'] = {
+            'name': 'Мапи',
+            'route': 'maps',
+        }
+        return ctx
+
     def get_queryset(self):
         return super(MapList, self).get_queryset().filter(instance_of=Map)
 
