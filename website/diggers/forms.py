@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from captcha.fields import CaptchaField
 
 from .models import User, Comment, Post, Map
+from .widgets import CKEditorWidget
 
 
 class PostAbstractForm(forms.ModelForm):
@@ -42,6 +43,7 @@ class PostForm(PostAbstractForm):
         super(PostForm, self).__init__(*args, **kwargs)
         self.fields['category'].empty_label = None
         self.fields['category'].required = True
+        self.fields['text'].widget = CKEditorWidget()
         if not self.author.has_perm('diggers.hidden_access'):
             self.fields['is_hidden'].widget = forms.HiddenInput()
 

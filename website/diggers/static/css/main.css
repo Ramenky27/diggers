@@ -521,12 +521,21 @@ ul,
 ol, 
 dl, 
 form, 
-.video-container, 
+.video-container,
+.cke,
 .ss-custom-select {
     margin-bottom: 3.2rem;
 }
-
-
+.cke {
+    margin-bottom: 3.2rem !important;
+}
+.cke_dialog_contents_body {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+.cke_dialog_body label, .cke_dialog_body input[type="radio"] {
+    vertical-align: middle !important;
+}
 
 /* ===================================================================
  * # preloader
