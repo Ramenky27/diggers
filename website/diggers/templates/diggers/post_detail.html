@@ -2,6 +2,7 @@
 {% load mptt_tags %}
 {% load static %}
 {% load plural %}
+{% load bleach_post %}
 
 {% block title %}{{ post.title }}{% endblock %}
 
@@ -19,9 +20,14 @@
 
         <div class="entry__content">
             {% if post.file %}
-                {% include "diggers/blocks/post_map_content.html" %}
+                <a href="{% url 'diggers:map_download' post.pk %}" target="_blank">Завантажити</a>
+                <br>
+                <a href="{{ MEDIA_URL }}{{ post.file }}" target="_blank">
+                    <img src="{{ MEDIA_URL }}{{ post.file }}" alt="upload"/>
+                </a>
+                {{ post.description|bleach }}
             {% else %}
-                {{ post.text|linebreaks }}
+                {{ post.text|bleach }}
             {% endif %}
         </div> <!-- entry__content -->
 

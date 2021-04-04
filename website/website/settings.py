@@ -20,7 +20,6 @@ load_dotenv(verbose=True)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -35,7 +34,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     os.getenv('DOMAIN', ''),
 ]
-
 
 # Application definition
 
@@ -53,6 +51,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'captcha',
     'django.forms',
+    'django_bleach',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'website.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -102,7 +100,6 @@ DATABASES = {
         'PORT': '5432'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -122,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -135,7 +131,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -171,3 +166,64 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 LOGIN_URL = reverse_lazy('login')
 LOGOUT_REDIRECT_URL = 'diggers:post_list'
+
+BLEACH_ALLOWED_TAGS = [
+    'p',
+    'b',
+    'i',
+    'u',
+    'em',
+    'strong',
+    'del',
+    'small',
+    'code',
+    'abbr',
+    'mark',
+    'a',
+    'table',
+    'tr',
+    'td',
+    'th',
+    'thead',
+    'tbody',
+    'caption',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'span',
+    'img',
+    'br',
+    'iframe',
+    'figure',
+    'figcaption',
+]
+BLEACH_ALLOWED_ATTRIBUTES = [
+    'href',
+    'title',
+    'target',
+    'alt',
+    'src',
+    'height',
+    'width',
+    'class',
+    'data-oembed-url',
+    'style',
+    'allowfullscreen',
+    'frameborder',
+    'mozallowfullscreen',
+    'webkitallowfullscreen',
+]
+BLEACH_ALLOWED_STYLES = [
+    'width',
+    'height',
+    'position',
+]
+BLEACH_ALLOWED_SRC = [
+    'youtube.com',
+    'www.youtube.com',
+]
+BLEACH_STRIP_TAGS = True
+BLEACH_STRIP_COMMENTS = True

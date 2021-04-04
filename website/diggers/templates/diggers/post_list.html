@@ -1,5 +1,6 @@
 {% extends 'diggers/layouts/blog.html' %}
 {% load static %}
+{% load bleach_post %}
 
 {% block title %}
     {% if author %}
@@ -37,9 +38,14 @@
 
             <div class="entry__content">
                 {% if post.file %}
-                    {% include "diggers/blocks/post_map_content.html" %}
+                    <a href="{% url 'diggers:map_download' post.pk %}" target="_blank">Завантажити</a>
+                    <br>
+                    <a href="{{ MEDIA_URL }}{{ post.file }}" target="_blank">
+                        <img src="{{ MEDIA_URL }}{{ post.file }}" alt="upload"/>
+                    </a>
+                    {{ post.description|bleach|truncatechars:400 }}
                 {% else %}
-                    {{ post.text|truncatechars:400|linebreaks }}
+                    {{ post.text|bleach|truncatechars:400 }}
                     {% if post.text|length > 400 %}
                         <a href="{% url 'diggers:post_detail' post.pk %}">Читати далі...</a>
                     {% endif %}
