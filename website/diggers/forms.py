@@ -53,6 +53,10 @@ class PostForm(PostAbstractForm):
 
 
 class MapForm(PostAbstractForm):
+    def __init__(self, *args, **kwargs):
+        super(MapForm, self).__init__(*args, **kwargs)
+        self.fields['description'].widget = CKEditorWidget(mode='simple')
+
     class Meta:
         model = Map
         fields = ['title', 'file', 'description', 'tags']
@@ -80,6 +84,7 @@ class CommentCreateForm(forms.ModelForm):
             self.parent = kwargs['initial']['parent']
 
         super(CommentCreateForm, self).__init__(*args, **kwargs)
+        self.fields['text'].widget = CKEditorWidget(mode='simple')
 
     def save(self, commit=True):
         obj = super(CommentCreateForm, self).save(commit=False)
