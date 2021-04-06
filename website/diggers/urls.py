@@ -3,9 +3,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 from django.contrib.auth.views import PasswordResetView
+from django.contrib.sitemaps.views import sitemap
 
 from . import views
 from .forms import ExtendedRegistrationForm
+
+sitemaps = {
+    'categories': views.CategoriesSitemap,
+    'static': views.StaticSitemap,
+    'posts': views.PostsSitemap,
+}
 
 app_name = 'diggers'
 urlpatterns = [
@@ -56,7 +63,9 @@ urlpatterns = [
         name='password_reset'
     ),
     path('accounts/profile/', views.PostListByObject.as_view(by_current_user=True), name='profile'),
-    path('accounts/profile/edit/', views.ProfileEditView.as_view(), name='profile_update')
+    path('accounts/profile/edit/', views.ProfileEditView.as_view(), name='profile_update'),
+
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.DEBUG:

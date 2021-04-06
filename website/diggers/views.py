@@ -2,7 +2,7 @@ from django.views import generic
 from django.db.models import Q
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from next_prev import next_in_order, prev_in_order
 
@@ -12,6 +12,7 @@ from django_registration.backends.one_step.views import RegistrationView as OneS
 from django_registration.exceptions import ActivationError
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
+from django.contrib.sitemaps import Sitemap
 
 from .models import Category, User, Comment, PostAbstract, Post, Map
 from .forms import PostCreateForm, MapCreateForm, PostForm, MapForm, ExtendedLoginForm, ProfileForm, CommentCreateForm
@@ -393,3 +394,30 @@ class CommentDelete(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.Del
 
     def get_success_url(self):
         return reverse_lazy('diggers:post_detail', kwargs={'pk': self.object.post.pk})
+
+
+class PostsSitemap(Sitemap):
+    changefreq = "never"
+    priority = 0.5
+
+    def items(self):
+        return Post.objects.filter(is_hidden=False).order_by('-created_date', '-pk')
+
+    def lastmod(self, obj):
+        return obj.created_date
+
+
+class CategoriesSitemap(Sitemap):
+    changefreq = "never"
+    priority = 0.5
+
+    def items(self):
+        return Category.objects.all().order_by('name')
+
+
+class StaticSitemap(Sitemap):
+    changefreq = 'never'
+    priority = 0.6
+
+    def location(self, item):
+        return reverse(item)
