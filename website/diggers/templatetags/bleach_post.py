@@ -12,7 +12,7 @@ bleach_args = get_bleach_default_options()
 
 
 def check_src(tag, name, value):
-    if name in bleach_args['attributes']:
+    if name in bleach_args['attributes']['*']:
         return True
     if name == 'src':
         p = urlparse(value)

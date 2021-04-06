@@ -2655,3 +2655,9 @@ button::-moz-focus-inner, input::-moz-focus-inner {
         border-left: none;
     }
 }
+
+.cke_editable {
+    cursor: text;
+    background: #FFF;
+    padding: 0 16px;
+}

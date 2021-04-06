@@ -18,31 +18,17 @@
 CKEDITOR.stylesSet.add( 'diggers', [
 	/* Block styles */
 
-	// These styles are already available in the "Format" drop-down list ("format" plugin),
-	// so they are not needed here by default. You may enable them to avoid
-	// placing the "Format" combo in the toolbar, maintaining the same features.
-	/*
-	{ name: 'Paragraph',		element: 'p' },
-	{ name: 'Heading 1',		element: 'h1' },
-	{ name: 'Heading 2',		element: 'h2' },
-	{ name: 'Heading 3',		element: 'h3' },
-	{ name: 'Heading 4',		element: 'h4' },
-	{ name: 'Heading 5',		element: 'h5' },
-	{ name: 'Heading 6',		element: 'h6' },
-	{ name: 'Preformatted Text',element: 'pre' },
-	{ name: 'Address',			element: 'address' },
-	*/
-
 	{ name: 'Аббривеатури',		element: 'abbr' },
 	{ name: 'Маркований',		element: 'mark' },
 	{ name: 'Код', 			element: 'code' },
 	{ name: 'Маленький',	element: 'small' },
 	{ name: 'Буквиця', 		element: 'p', attributes: { class: 'drop-cap' } },
+	{ name: 'Виділений абзац', 		element: 'p', attributes: { class: 'lead' } },
 
 	{ name: 'Жирний',			element: 'strong', overrides: 'b' },
 	{ name: 'Курсив',			element: 'em'	, overrides: 'i' },
 	{ name: 'Підкреслений',		element: 'u' },
-	{ name: 'Закреслений',		element: 'del' },
+	{ name: 'Закреслений',		element: 'del', overrides: 's'  },
 
 	/* Object styles */
 
@@ -59,19 +45,19 @@ CKEDITOR.stylesSet.add( 'diggers', [
 	},
 
 	/* Widget styles */
-	{ name: '240p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-240p' }, group: 'size' },
-	{ name: '360p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-360p' }, group: 'size' },
-	{ name: '480p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-480p' }, group: 'size' },
-	{ name: '720p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-720p' }, group: 'size' },
-	{ name: '1080p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'embed-1080p' }, group: 'size' },
+	{ name: '240p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '360p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '480p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '720p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '1080p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
 
 	// Adding space after the style name is an intended workaround. For now, there
 	// is no option to create two styles with the same name for different widget types. See https://dev.ckeditor.com/ticket/16664.
-	{ name: '240p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-240p' }, group: 'size' },
-	{ name: '360p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-360p' }, group: 'size' },
-	{ name: '480p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-480p' }, group: 'size' },
-	{ name: '720p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-720p' }, group: 'size' },
-	{ name: '1080p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-1080p' }, group: 'size' }
+	{ name: '240p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '360p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '480p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '720p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
+	{ name: '1080p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' }
 
 ] );
 

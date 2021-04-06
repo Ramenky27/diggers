@@ -173,6 +173,12 @@ BLEACH_ALLOWED_TAGS = [
     'i',
     'u',
     'em',
+    'ul',
+    'ol',
+    'li',
+    'dl',
+    'dd',
+    'dt',
     'strong',
     'del',
     'small',
@@ -199,9 +205,13 @@ BLEACH_ALLOWED_TAGS = [
     'iframe',
     'figure',
     'figcaption',
+    'blockquote',
+    'cite',
+    'aside',
 ]
 BLEACH_ALLOWED_ATTRIBUTES = [
     'href',
+    'allow',
     'title',
     'target',
     'alt',
@@ -209,6 +219,7 @@ BLEACH_ALLOWED_ATTRIBUTES = [
     'height',
     'width',
     'class',
+    'cite',
     'data-oembed-url',
     'style',
     'allowfullscreen',
@@ -221,7 +232,7 @@ BLEACH_ALLOWED_STYLES = [
     'height',
     'position',
 ]
-BLEACH_ALLOWED_SRC = [
+BLEACH_ALLOWED_IFRAME_SRC = [
     'youtube.com',
     'www.youtube.com',
 ]
