@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
             language: 'uk',
             removeButtons: 'Cut,Copy,Paste,Anchor,Subscript,Superscript,About,Indent,Outdent',
 
-            extraPlugins: 'embed,uploadimage,image2,sourcearea,table,maximize',
+            extraPlugins: 'embed,image2,sourcearea,table,maximize',
 
             // Load the default contents.css file plus customizations for this sample.
             contentsCss: [
@@ -16,9 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             image2_alignClasses: ['image-align-left', 'image-align-center', 'image-align-right'],
             image2_disableResizer: true,
-
-            filebrowserUploadUrl: '/upload',
-            filebrowserImageUploadUrl: '/upload',
 
             stylesSet: 'diggers:/static/ckeditor/styles_diggers.js',
             format_tags: 'p;h1;h2;h3;h4;h5;h6;div',
