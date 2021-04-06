@@ -101,6 +101,16 @@ class CommentCreateForm(forms.ModelForm):
         return obj
 
 
+class CommentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+
+    def __init__(self, *args, **kwargs):
+        super(CommentUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['text'].widget = CKEditorWidget(mode='simple')
+
+
 class ExtendedRegistrationForm(RegistrationForm):
     captcha = CaptchaField()
 

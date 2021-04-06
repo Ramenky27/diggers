@@ -221,6 +221,7 @@ BLEACH_ALLOWED_ATTRIBUTES = [
     'width',
     'class',
     'cite',
+    'href',
     'data-oembed-url',
     'style',
     'allowfullscreen',

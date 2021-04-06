@@ -15,7 +15,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.sitemaps import Sitemap
 
 from .models import Category, User, Comment, PostAbstract, Post, Map
-from .forms import PostCreateForm, MapCreateForm, PostForm, MapForm, ExtendedLoginForm, ProfileForm, CommentCreateForm
+from .forms import PostCreateForm, MapCreateForm, PostForm, MapForm, ExtendedLoginForm, ProfileForm, \
+    CommentCreateForm, CommentUpdateForm
 
 
 # Create your views here.
@@ -362,7 +363,7 @@ class CommentCreate(LoginRequiredMixin, CheckUserVerifiedMixin, generic.CreateVi
 
 class CommentUpdate(LoginRequiredMixin, CheckModifyPermissionsMixin, generic.UpdateView):
     model = Comment
-    fields = ['text']
+    form_class = CommentUpdateForm
     template_name_suffix = '_update_form'
 
     def get_queryset(self):

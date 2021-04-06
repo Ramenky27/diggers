@@ -110,9 +110,7 @@
                                         </div>
 
                                         <div class="comment__text">
-                                            <p>
-                                                {{ node.text }}
-                                            </p>
+                                            {{ node.text|bleach }}
                                         </div>
                                     </div>
                                 {% else %}

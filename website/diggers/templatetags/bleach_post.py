@@ -12,12 +12,12 @@ bleach_args = get_bleach_default_options()
 
 
 def check_src(tag, name, value):
-    if name in bleach_args['attributes']['*']:
-        return True
-    if name == 'src':
-        p = urlparse(value)
-        return p.netloc in getattr(settings, 'BLEACH_ALLOWED_IFRAME_SRC', [])
-    return False
+    if tag == 'iframe':
+        if name == 'src':
+            p = urlparse(value)
+            return p.netloc in getattr(settings, 'BLEACH_ALLOWED_IFRAME_SRC', [])
+    else:
+        return name in getattr(settings, 'BLEACH_ALLOWED_ATTRIBUTES', [])
 
 
 @register.filter(name='bleach')
@@ -31,9 +31,6 @@ def bleach_value(value, tags=None):
     else:
         args = bleach_args
 
-    args['attributes'] = {
-        'iframe': check_src,
-        '*': bleach_args['attributes'],
-    }
+    args['attributes'] = check_src
     bleached_value = bleach.clean(value, **args)
     return mark_safe(bleached_value)
