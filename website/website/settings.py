@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     os.getenv('DOMAIN', ''),
+    'www.' + os.getenv('DOMAIN', ''),
 ]
 
 # Application definition
