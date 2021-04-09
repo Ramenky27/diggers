@@ -1,12 +1,16 @@
 from django.contrib import admin, messages
+from django import forms
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from django.contrib.auth.admin import UserAdmin
+from mptt.admin import MPTTModelAdmin
+
 from .models import User, Post, Comment, Category, PostAbstract, Map
 from .views import HTMLActivationEmailMixin
-from mptt.admin import MPTTModelAdmin
+from .widgets import CKEditorWidget
 
 
 # Register your models here.
+
 
 class EmailActivation(HTMLActivationEmailMixin):
     def __init__(self, **kwargs):
@@ -22,6 +26,33 @@ def send_activation(modeladmin, request, queryset):
 
 
 send_activation.short_description = 'Надіслати код підтвердження'
+
+
+class PostAdminForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['author', 'title', 'text', 'category', 'tags', 'is_hidden']
+        widgets = {
+            'text': CKEditorWidget(),
+        }
+
+
+class MapAdminForm(forms.ModelForm):
+    class Meta:
+        model = Map
+        fields = ['author', 'title', 'file', 'description', 'tags']
+        widgets = {
+            'description': CKEditorWidget(mode='simple'),
+        }
+
+
+class CommentAdminForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['post', 'author', 'text', 'parent', 'is_deleted']
+        widgets = {
+            'text': CKEditorWidget(mode='simple'),
+        }
 
 
 @admin.register(User)
@@ -63,11 +94,13 @@ class PostAbstractAdmin(PolymorphicParentModelAdmin):
 @admin.register(Post)
 class PostAdmin(PolymorphicChildModelAdmin):
     show_in_index = True
+    form = PostAdminForm
 
 
 @admin.register(Map)
 class MapAdmin(PolymorphicChildModelAdmin):
     show_in_index = True
+    form = MapAdminForm
 
 
 @admin.register(Comment)
@@ -78,6 +111,7 @@ class CommentsAdmin(MPTTModelAdmin):
     list_display = ('get_short_text', 'get_post', 'created_date', 'modified_date', 'author', 'is_deleted')
     date_hierarchy = 'created_date'
     search_fields = ['text']
+    form = CommentAdminForm
 
     def get_post(self, obj):
         return obj.post.title

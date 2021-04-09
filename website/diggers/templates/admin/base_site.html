@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% block extrahead %}
+    <style>
+        .aligned label {
+            float: none !important;
+        }
+        form .aligned input + p.help,
+        form .aligned textarea + p.help,
+        form .aligned select + p.help,
+        form .aligned input + div.help,
+        form .aligned textarea + div.help,
+        form .aligned select + div.help,
+        form .aligned p.help,
+        form .aligned div.help,
+        .aligned label + p,
+        .aligned label + div.help,
+        .aligned label + div.readonly,
+        .aligned p.file-upload
+        {
+            margin-left: 0;
+            padding-left: 0;
+        }
+    </style>
+{% endblock %}
