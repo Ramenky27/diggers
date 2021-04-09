@@ -244,8 +244,8 @@ class ExtendedLoginView(LoginView):
 
 
 class HTMLActivationEmailMixin(ActivationEmailMixin):
-    plain_email_body_template = "registration/activation_email_body.txt"
-    html_email_body_template = "registration/activation_email_body.html"
+    plain_email_body_template = "django_registration/activation_email_body.txt"
+    html_email_body_template = "django_registration/activation_email_body.html"
 
     def send_activation_email(self, user):
         activation_key = self.get_activation_key(user)

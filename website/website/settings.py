@@ -241,3 +241,52 @@ BLEACH_ALLOWED_IFRAME_SRC = [
 ]
 BLEACH_STRIP_TAGS = True
 BLEACH_STRIP_COMMENTS = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'formatter': 'verbose'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    }
+}
+
+admin_name = os.getenv('ADMIN_NAME', None)
+admin_email = os.getenv('ADMIN_EMAIL', None)
+
+if admin_email and admin_name:
+    ADMINS = [(admin_name, admin_email)]
