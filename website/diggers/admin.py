@@ -2,15 +2,21 @@ from django.contrib import admin, messages
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from django.contrib.auth.admin import UserAdmin
 from .models import User, Post, Comment, Category, PostAbstract, Map
+from .views import HTMLActivationEmailMixin
 from mptt.admin import MPTTModelAdmin
 
 
 # Register your models here.
 
+class EmailActivation(HTMLActivationEmailMixin):
+    def __init__(self, **kwargs):
+        super(EmailActivation, self).__init__()
+        self.request = kwargs.get('request')
 
-def send_activation(request, queryset):
+
+def send_activation(modeladmin, request, queryset):
     for user in queryset:
-        pass
+        EmailActivation(request=request).send_activation_email(user)
 
     messages.add_message(request, messages.INFO, 'Код підтвердження надіслано обраним користувачам')
 
