@@ -1,7 +1,7 @@
 const defaultConfig = {
     language: 'uk',
     removeButtons: 'Cut,Copy,Paste,Anchor,Subscript,Superscript,About,Indent,Outdent',
-    extraPlugins: 'embed,image2,sourcearea,table,maximize',
+    extraPlugins: 'widget,embed,autoembed,image2,sourcearea,table,maximize',
     removePlugins: '',
 
     embed_provider: '//ckeditor.iframe.ly/api/oembed?url={url}&callback={callback}',
@@ -20,7 +20,7 @@ const defaultConfig = {
 
 const simpleConfig = Object.assign({}, defaultConfig, {
     removeButtons: 'Cut,Copy,Paste,Format,Styles,Undo,Redo,Anchor,Subscript,Superscript,About,Indent,Outdent',
-    extraPlugins: 'embed,image2,sourcearea',
+    extraPlugins: 'widget,embed,autoembed,image2,sourcearea',
     removePlugins: 'table,maximize,exportpdf,autosave',
 });
 

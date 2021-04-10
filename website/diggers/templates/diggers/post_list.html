@@ -43,9 +43,9 @@
                     <a href="{{ MEDIA_URL }}{{ post.file }}" target="_blank">
                         <img src="{{ MEDIA_URL }}{{ post.file }}" alt="upload"/>
                     </a>
-                    {{ post.description|truncatechars:400|bleach }}
+                    {{ post.description|truncatechars_html:400|bleach }}
                 {% else %}
-                    {{ post.text|truncatechars:400|bleach }}
+                    {{ post.text|bleach|truncatechars_html:400 }}
                     {% if post.text|length > 400 %}
                         <a href="{% url 'diggers:post_detail' post.pk %}">Читати далі...</a>
                     {% endif %}

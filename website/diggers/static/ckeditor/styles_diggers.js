@@ -43,21 +43,5 @@ CKEDITOR.stylesSet.add( 'diggers', [
 		element: 'img',
 		attributes: { 'class': 'h-pull-right' }
 	},
-
-	/* Widget styles */
-	{ name: '240p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '360p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '480p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '720p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '1080p', type: 'widget', widget: 'embedSemantic', attributes: { 'class': 'video-container' }, group: 'size' },
-
-	// Adding space after the style name is an intended workaround. For now, there
-	// is no option to create two styles with the same name for different widget types. See https://dev.ckeditor.com/ticket/16664.
-	{ name: '240p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '360p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '480p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '720p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' },
-	{ name: '1080p ', type: 'widget', widget: 'embed', attributes: { 'class': 'video-container' }, group: 'size' }
-
 ] );
 
