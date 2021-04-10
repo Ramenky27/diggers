@@ -24,7 +24,7 @@
                 <li><a href="{% url "diggers:post_update" post.pk %}" title="">Редагувати</a></li>
             {% endif %}
 
-            {% if perms.diggers.delete_cmspost %}
+            {% if perms.diggers.delete_post %}
                 <li><a href="{% url "diggers:post_delete" post.pk %}" title="">Видалити</a></li>
             {% endif %}
         {% endif %}
