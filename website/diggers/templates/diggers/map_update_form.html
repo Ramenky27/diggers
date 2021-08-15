@@ -1,10 +1,10 @@
 {% extends 'diggers/layouts/page.html' %}
 
-{% block title %}Редагування мапи {{ post.title }}{% endblock %}
+{% block title %}Редагування мапи "{{ map.title }}"{% endblock %}
 
 {% block content %}
     <section class="page-content">
-        <h2 class="page-content__title h1">Редагування мапи {{ post.title }}</h2>
+        <h2 class="page-content__title h1">Редагування мапи "{{ map.title }}"</h2>
 
         <form method="POST" enctype="multipart/form-data">
             {% include "diggers/blocks/form.html" %}

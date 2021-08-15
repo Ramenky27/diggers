@@ -1,10 +1,10 @@
 {% extends 'diggers/layouts/page.html' %}
 
-{% block title %}Редагування коментаря {{ comment.text | truncatechars:80 }}{% endblock %}
+{% block title %}Редагування коментаря: {{ comment.text | striptags | truncatechars:40 }}{% endblock %}
 
 {% block content %}
     <section class="page-content">
-        <h2 class="page-content__title h1">Редагування коментаря {{ comment.text | truncatechars:80 }}</h2>
+        <h2 class="page-content__title h1">Редагування коментаря: {{ comment.text | striptags | truncatechars:40 }}</h2>
 
         <form method="POST" enctype="multipart/form-data">
             {% include "diggers/blocks/form.html" %}

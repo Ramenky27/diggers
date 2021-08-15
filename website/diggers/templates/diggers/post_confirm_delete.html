@@ -5,7 +5,7 @@
 {% block content %}
     <section class="page-content">
 
-        <h2 class="page-content__title h1">Видалення поста {{ post }}</h2>
+        <h2 class="page-content__title h1">Видалення поста "{{ post.title }}"</h2>
 
         <form method="POST">
             {% csrf_token %}
