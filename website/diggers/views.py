@@ -144,7 +144,6 @@ class PostListByObject(generic.detail.SingleObjectMixin, PostList):
     def get_context_data(self, **kwargs):
         ctx = super(PostListByObject, self).get_context_data(**kwargs)
         ctx[self.slug_url_kwarg] = self.object
-        ctx['posts'] = self.object_list
 
         return ctx
 
